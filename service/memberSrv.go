@@ -1,13 +1,22 @@
 package service
 
-import rep "GoWeb/repository"
+import (
+	models_rep "GoWeb/models/repository"
+	rep "GoWeb/repository"
+	"context"
+	"time"
+
+	"GoWeb/utils/errs"
+)
 
 type IMemberSrv interface {
 	CreateMember() bool
-	GetMember() bool
+	GetAllMember() (*[]models_rep.Member, *errs.ErrorResponse)
 }
 
-var _ IMemberSrv = (*MemberSrv)(nil)
+var (
+	cancelTimeout time.Duration = 3 // default 3 second
+)
 
 type MemberSrv struct {
 	MemberRepo rep.IMemberRepo
@@ -18,9 +27,15 @@ func NewMemberSrv(IMemberRepo rep.IMemberRepo) IMemberSrv {
 		MemberRepo: IMemberRepo,
 	}
 }
-func (m *MemberSrv) CreateMember() bool {
-	return m.MemberRepo.CreateMember()
+func (svc *MemberSrv) CreateMember() bool {
+	return svc.MemberRepo.Insert()
 }
-func (m *MemberSrv) GetMember() bool {
-	return false
+func (svc *MemberSrv) GetAllMember() (*[]models_rep.Member, *errs.ErrorResponse) {
+	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
+	defer cancel()
+	result, err := svc.MemberRepo.FindAll(ctx)
+	if err != nil {
+		return nil, errs.ErrNotFound
+	}
+	return result, nil
 }

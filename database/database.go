@@ -34,7 +34,7 @@ func NewDb() error {
 	)
 	DB, err = gorm.Open(os.Getenv("PG_DRIVER"), dataSourceName)
 	if err != nil {
-		fmt.Println("error")
+		fmt.Println("error conn postgres")
 		return err
 	}
 	DB.LogMode(true)

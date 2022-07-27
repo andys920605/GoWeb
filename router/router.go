@@ -2,6 +2,7 @@ package router
 
 import (
 	srv "GoWeb/service"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -29,20 +30,16 @@ func (router *Router) InitRouter() *gin.Engine {
 			"message": "pong",
 		})
 	})
-	v1.GET("/member", router.getMember)
+	v1.GET("/member", router.getAllMember)
 	return r
 }
 
 // v1/member
-func (router *Router) getMember(c *gin.Context) {
-	check := router.MemberSvc.CreateMember()
-	if check {
-		c.JSON(200, gin.H{
-			"message": "Ok",
-		})
-	} else {
-		c.JSON(200, gin.H{
-			"message": "NotOk",
-		})
+func (router *Router) getAllMember(c *gin.Context) {
+	result, errRsp := router.MemberSvc.GetAllMember()
+	if errRsp != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": errRsp})
+		return
 	}
+	c.JSON(http.StatusOK, result)
 }

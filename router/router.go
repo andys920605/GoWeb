@@ -30,7 +30,6 @@ func (router *Router) InitRouter() *gin.Engine {
 		})
 	})
 	v1.GET("/member", router.getMember)
-
 	return r
 }
 

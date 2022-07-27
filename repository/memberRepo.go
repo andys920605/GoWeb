@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"database/sql"
+	"github.com/jinzhu/gorm"
 )
 
 //go:generate mockgen -destination=../../test/mock/member_mock_repository.go -package=mock GoWeb/repository IMemberRepo
@@ -16,10 +16,10 @@ type IMemberRepo interface {
 //var _ IMemberRepo = (*MemberRepo)(nil)
 
 type MemberRepo struct {
-	dB *sql.DB
+	dB *gorm.DB
 }
 
-func NewMemberRepo(db *sql.DB) IMemberRepo {
+func NewMemberRepo(db *gorm.DB) IMemberRepo {
 	return &MemberRepo{
 		dB: db,
 	}

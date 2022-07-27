@@ -33,6 +33,7 @@ func (router *Router) InitRouter() *gin.Engine {
 	return r
 }
 
+// v1/member
 func (router *Router) getMember(c *gin.Context) {
 	check := router.MemberSvc.CreateMember()
 	if check {

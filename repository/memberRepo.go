@@ -4,7 +4,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-//go:generate mockgen -destination=../../test/mock/member_mock_repository.go -package=mock GoWeb/repository IMemberRepo
+//go:generate mockgen -destination=../test/mock/imember_mock_repository.go -package=mock GoWeb/repository IMember
 
 type IMemberRepo interface {
 	CreateMember() bool

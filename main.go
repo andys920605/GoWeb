@@ -14,7 +14,7 @@ func main() {
 
 	app := di()
 	server := app.InitRouter()
-	server.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	server.Run(":8070")
 }
 
 func di() router.IRouter {

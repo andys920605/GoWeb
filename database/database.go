@@ -10,11 +10,6 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-var (
-	DB  *gorm.DB
-	err error
-)
-
 const (
 	maxOpenConns    = 30
 	connMaxLifetime = 120
@@ -22,7 +17,7 @@ const (
 	connMaxIdleTime = 20
 )
 
-func NewDb() error {
+func NewDb() (*gorm.DB, error) {
 	dataSourceName := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s search_path=%s",
 		os.Getenv("PG_HOST"),
 		os.Getenv("PG_PORT"),
@@ -32,21 +27,21 @@ func NewDb() error {
 		os.Getenv("PG_PASSWORD"),
 		os.Getenv("PG_SCHEAM"),
 	)
-	DB, err = gorm.Open(os.Getenv("PG_DRIVER"), dataSourceName)
+	db, err := gorm.Open(os.Getenv("PG_DRIVER"), dataSourceName)
 	if err != nil {
 		fmt.Println("error conn postgres")
-		return err
+		return nil, err
 	}
-	DB.LogMode(true)
+	db.LogMode(true)
 	// SetMaxOpenConns 設定打開資料庫連接最大數量
-	DB.DB().SetMaxOpenConns(maxOpenConns)
+	db.DB().SetMaxOpenConns(maxOpenConns)
 	// SetConnMaxLifetime sets the maximum amount of time a connection may be reused. 設定連接可重覆使用的最大時間
 	// Expired connections may be closed lazily before reuse.
-	DB.DB().SetConnMaxLifetime(connMaxLifetime * time.Second)
+	db.DB().SetConnMaxLifetime(connMaxLifetime * time.Second)
 	// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
 	// If MaxOpenConns is greater than 0 but less than the new MaxIdleConns, then the new MaxIdleConns will be reduced to match the MaxOpenConns limit.
-	DB.DB().SetMaxIdleConns(maxIdleConns)
-	DB.DB().SetConnMaxIdleTime(connMaxIdleTime * time.Second)
+	db.DB().SetMaxIdleConns(maxIdleConns)
+	db.DB().SetConnMaxIdleTime(connMaxIdleTime * time.Second)
 	log.Println("DB:OK")
-	return nil
+	return db, nil
 }

@@ -10,7 +10,7 @@ import (
 )
 
 type IMemberSrv interface {
-	CreateMember() bool
+	CreateMember(*models_rep.Member) *errs.ErrorResponse
 	GetAllMember() (*[]models_rep.Member, *errs.ErrorResponse)
 }
 
@@ -27,15 +27,24 @@ func NewMemberSrv(IMemberRepo rep.IMemberRepo) IMemberSrv {
 		MemberRepo: IMemberRepo,
 	}
 }
-func (svc *MemberSrv) CreateMember() bool {
-	return svc.MemberRepo.Insert()
+func (svc *MemberSrv) CreateMember(param *models_rep.Member) *errs.ErrorResponse {
+	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
+	defer cancel()
+	if err := svc.MemberRepo.Insert(ctx, param); err != nil {
+		return &errs.ErrorResponse{
+			Message: err.Error(),
+		}
+	}
+	return nil
 }
 func (svc *MemberSrv) GetAllMember() (*[]models_rep.Member, *errs.ErrorResponse) {
 	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
 	defer cancel()
 	result, err := svc.MemberRepo.FindAll(ctx)
 	if err != nil {
-		return nil, errs.ErrNotFound
+		return nil, &errs.ErrorResponse{
+			Message: "err params",
+		}
 	}
 	return result, nil
 }

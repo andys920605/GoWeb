@@ -12,6 +12,7 @@ import (
 type IMemberSrv interface {
 	CreateMember(*models_rep.Member) *errs.ErrorResponse
 	GetAllMember() (*[]models_rep.Member, *errs.ErrorResponse)
+	GetMember(string, string) (*models_rep.Member, *errs.ErrorResponse)
 }
 
 var (
@@ -43,7 +44,18 @@ func (svc *MemberSrv) GetAllMember() (*[]models_rep.Member, *errs.ErrorResponse)
 	result, err := svc.MemberRepo.FindAll(ctx)
 	if err != nil {
 		return nil, &errs.ErrorResponse{
-			Message: "err params",
+			Message: err.Error(),
+		}
+	}
+	return result, nil
+}
+func (svc *MemberSrv) GetMember(id string, phone string) (*models_rep.Member, *errs.ErrorResponse) {
+	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
+	defer cancel()
+	result, err := svc.MemberRepo.Find(ctx, id, phone)
+	if err != nil {
+		return nil, &errs.ErrorResponse{
+			Message: err.Error(),
 		}
 	}
 	return result, nil

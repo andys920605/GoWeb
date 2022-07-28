@@ -13,7 +13,7 @@ import (
 
 type IMemberRepo interface {
 	Insert(context.Context, *models_rep.Member) error
-	Find() bool
+	Find(context.Context, string, string) (*models_rep.Member, error)
 	FindAll(context.Context) (*[]models_rep.Member, error)
 	Updates() bool
 	Disable() bool
@@ -40,8 +40,16 @@ func (rep *MemberRepo) Insert(ctx context.Context, param *models_rep.Member) err
 	}
 	return nil
 }
-func (rep *MemberRepo) Find() bool {
-	return false
+func (rep *MemberRepo) Find(ctx context.Context, id string, phone string) (*models_rep.Member, error) {
+	db := rep.db.DB()
+	result := &models_rep.Member{}
+	query := `SELECT account,password,permission,name,email,phone,address,create_at FROM member` +
+		` WHERE is_alive = true AND account =$1 OR phone = $2 ORDER BY id`
+	row := db.QueryRowContext(ctx, query, id, phone)
+	if err := row.Scan(&result.Account, &result.Password, &result.Permission, &result.Name, &result.Email, &result.Phone, &result.Address, &result.CreateAt); err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 func (rep *MemberRepo) FindAll(ctx context.Context) (*[]models_rep.Member, error) {
 	db := rep.db.DB()

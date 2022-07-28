@@ -32,11 +32,10 @@ func (router *Router) InitRouter() *gin.Engine {
 	})
 	v1.POST("/members", router.createMember)
 	v1.GET("/members", router.getMember)
-	v1.GET("/members/all", router.getMembers)
 	return r
 }
 
-// v1/member
+// v1/members
 func (router *Router) createMember(c *gin.Context) {
 	var payload models_rep.Member
 	if err := c.ShouldBind(&payload); err != nil {
@@ -55,18 +54,20 @@ func (router *Router) createMember(c *gin.Context) {
 func (router *Router) getMember(c *gin.Context) {
 	account := c.Query("account")
 	phone := c.Query("phone")
-	result, errRsp := router.MemberSvc.GetMember(account, phone)
-	if errRsp != nil {
-		c.JSON(http.StatusInternalServerError, errRsp)
-		return
+	if account != "" || phone != "" {
+		result, errRsp := router.MemberSvc.GetMember(account, phone)
+		if errRsp != nil {
+			c.JSON(http.StatusInternalServerError, errRsp)
+			return
+		}
+		c.JSON(http.StatusOK, result)
+	} else {
+		result, errRsp := router.MemberSvc.GetAllMember()
+		if errRsp != nil {
+			c.JSON(http.StatusInternalServerError, errRsp)
+			return
+		}
+		c.JSON(http.StatusOK, result)
 	}
-	c.JSON(http.StatusOK, result)
-}
-func (router *Router) getMembers(c *gin.Context) {
-	result, errRsp := router.MemberSvc.GetAllMember()
-	if errRsp != nil {
-		c.JSON(http.StatusInternalServerError, errRsp)
-		return
-	}
-	c.JSON(http.StatusOK, result)
+
 }

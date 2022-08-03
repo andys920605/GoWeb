@@ -15,7 +15,7 @@ type IMemberRepo interface {
 	Insert(context.Context, *models_rep.Member) error
 	Find(context.Context, string, string) (*models_rep.Member, error)
 	FindAll(context.Context) (*[]models_rep.Member, error)
-	Updates() bool
+	Updates(context.Context, *models_rep.UpdateMember) error
 	Disable() bool
 }
 type MemberRepo struct {
@@ -41,6 +41,8 @@ func (rep *MemberRepo) Insert(ctx context.Context, param *models_rep.Member) err
 	return nil
 }
 func (rep *MemberRepo) Find(ctx context.Context, id string, phone string) (*models_rep.Member, error) {
+	rep.mutex.Lock()
+	defer rep.mutex.Unlock()
 	db := rep.db.DB()
 	result := &models_rep.Member{}
 	query := `SELECT account,password,permission,name,email,phone,address,create_at FROM member` +
@@ -52,6 +54,8 @@ func (rep *MemberRepo) Find(ctx context.Context, id string, phone string) (*mode
 	return result, nil
 }
 func (rep *MemberRepo) FindAll(ctx context.Context) (*[]models_rep.Member, error) {
+	rep.mutex.Lock()
+	defer rep.mutex.Unlock()
 	db := rep.db.DB()
 	result := []models_rep.Member{}
 	query := `SELECT account,password,permission,name,email,phone,address,create_at
@@ -77,8 +81,17 @@ func (rep *MemberRepo) FindAll(ctx context.Context) (*[]models_rep.Member, error
 
 	return &result, err
 }
-func (rep *MemberRepo) Updates() bool {
-	return false
+func (rep *MemberRepo) Updates(ctx context.Context, param *models_rep.UpdateMember) error {
+	rep.mutex.Lock()
+	defer rep.mutex.Unlock()
+	db := rep.db.DB()
+
+	query := `UPDATE member SET name =$2, email =$3,phone=$4, address=$5 WHERE account = $1`
+	_, err := db.ExecContext(ctx, query, param.Account, param.Name, param.Email, param.Phone, param.Address)
+	if err != nil {
+		return fmt.Errorf("%s", err.Error())
+	}
+	return nil
 }
 func (rep *MemberRepo) Disable() bool {
 	return false

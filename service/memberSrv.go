@@ -13,6 +13,7 @@ type IMemberSrv interface {
 	CreateMember(*models_rep.Member) *errs.ErrorResponse
 	GetAllMember() (*[]models_rep.Member, *errs.ErrorResponse)
 	GetMember(string, string) (*models_rep.Member, *errs.ErrorResponse)
+	UpdateMember(*models_rep.UpdateMember) *errs.ErrorResponse
 }
 
 var (
@@ -59,4 +60,15 @@ func (svc *MemberSrv) GetMember(id string, phone string) (*models_rep.Member, *e
 		}
 	}
 	return result, nil
+}
+func (svc *MemberSrv) UpdateMember(param *models_rep.UpdateMember) *errs.ErrorResponse {
+	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
+	defer cancel()
+	err := svc.MemberRepo.Updates(ctx, param)
+	if err != nil {
+		return &errs.ErrorResponse{
+			Message: err.Error(),
+		}
+	}
+	return nil
 }

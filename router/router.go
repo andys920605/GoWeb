@@ -32,6 +32,7 @@ func (router *Router) InitRouter() *gin.Engine {
 	})
 	v1.POST("/members", router.createMember)
 	v1.GET("/members", router.getMember)
+	v1.PUT("/members/:account", router.updateMember)
 	return r
 }
 
@@ -70,4 +71,21 @@ func (router *Router) getMember(c *gin.Context) {
 		c.JSON(http.StatusOK, result)
 	}
 
+}
+func (router *Router) updateMember(c *gin.Context) {
+	account := c.Param("account")
+	var payload models_rep.UpdateMember
+	payload.Account = account
+	if err := c.ShouldBind(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	errRsp := router.MemberSvc.UpdateMember(&payload)
+	if errRsp != nil {
+		c.JSON(http.StatusInternalServerError, errRsp)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
+	})
 }

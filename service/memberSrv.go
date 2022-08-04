@@ -14,6 +14,7 @@ type IMemberSrv interface {
 	GetAllMember() (*[]models_rep.Member, *errs.ErrorResponse)
 	GetMember(string, string) (*models_rep.Member, *errs.ErrorResponse)
 	UpdateMember(*models_rep.UpdateMember) *errs.ErrorResponse
+	DisableMember(*models_rep.UpdateMember) *errs.ErrorResponse
 }
 
 var (
@@ -29,6 +30,7 @@ func NewMemberSrv(IMemberRepo rep.IMemberRepo) IMemberSrv {
 		MemberRepo: IMemberRepo,
 	}
 }
+
 func (svc *MemberSrv) CreateMember(param *models_rep.Member) *errs.ErrorResponse {
 	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
 	defer cancel()
@@ -65,6 +67,17 @@ func (svc *MemberSrv) UpdateMember(param *models_rep.UpdateMember) *errs.ErrorRe
 	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
 	defer cancel()
 	err := svc.MemberRepo.Updates(ctx, param)
+	if err != nil {
+		return &errs.ErrorResponse{
+			Message: err.Error(),
+		}
+	}
+	return nil
+}
+func (svc *MemberSrv) DisableMember(param *models_rep.UpdateMember) *errs.ErrorResponse {
+	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
+	defer cancel()
+	err := svc.MemberRepo.Disable(ctx, param)
 	if err != nil {
 		return &errs.ErrorResponse{
 			Message: err.Error(),

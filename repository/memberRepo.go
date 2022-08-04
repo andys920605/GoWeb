@@ -16,7 +16,7 @@ type IMemberRepo interface {
 	Find(context.Context, string, string) (*models_rep.Member, error)
 	FindAll(context.Context) (*[]models_rep.Member, error)
 	Updates(context.Context, *models_rep.UpdateMember) error
-	Disable() bool
+	Disable(context.Context, *models_rep.UpdateMember) error
 }
 type MemberRepo struct {
 	mutex sync.Mutex
@@ -85,7 +85,6 @@ func (rep *MemberRepo) Updates(ctx context.Context, param *models_rep.UpdateMemb
 	rep.mutex.Lock()
 	defer rep.mutex.Unlock()
 	db := rep.db.DB()
-
 	query := `UPDATE member SET name =$2, email =$3,phone=$4, address=$5 WHERE account = $1`
 	_, err := db.ExecContext(ctx, query, param.Account, param.Name, param.Email, param.Phone, param.Address)
 	if err != nil {
@@ -93,6 +92,11 @@ func (rep *MemberRepo) Updates(ctx context.Context, param *models_rep.UpdateMemb
 	}
 	return nil
 }
-func (rep *MemberRepo) Disable() bool {
-	return false
+func (rep *MemberRepo) Disable(ctx context.Context, param *models_rep.UpdateMember) error {
+	rep.mutex.Lock()
+	defer rep.mutex.Unlock()
+	db := rep.db.DB()
+	query := `UPDATE member SET is_alive = false WHERE account = $1`
+	_, err := db.ExecContext(ctx, query, param.Account)
+	return err
 }

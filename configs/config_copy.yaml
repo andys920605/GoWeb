@@ -7,3 +7,15 @@ postgres:
   Schema: public
   Sslmode: false
   PgDriver: postgres
+
+redis:
+  RedisAddr: 192.168.17.57:6379
+  RedisPassword:
+  RedisDb: 0
+  RedisDefaultdb: 0
+  MinIdleConns: 200
+  PoolSize: 12000
+  PoolTimeout: 240
+  Password: ""
+  DB: 0
+  AcctCacheTTL: 3

@@ -5,7 +5,6 @@ import (
 	rep "GoWeb/repository"
 	"GoWeb/router"
 	srv "GoWeb/service"
-	"log"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/joho/godotenv/autoload"
@@ -15,7 +14,10 @@ func main() {
 	// new postgres db
 	db, err := database.NewDb()
 	if err != nil {
-		log.Printf("DB err message:%e", err)
+		return
+	}
+	_, redisErr := database.NewRedis()
+	if redisErr != nil {
 		return
 	}
 	app := di(db)

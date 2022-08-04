@@ -29,7 +29,7 @@ func NewDb() (*gorm.DB, error) {
 	)
 	db, err := gorm.Open(os.Getenv("PG_DRIVER"), dataSourceName)
 	if err != nil {
-		log.Println("error conn postgres")
+		log.Printf("Conn postgres err message:%e", err)
 		return nil, err
 	}
 	db.LogMode(true)

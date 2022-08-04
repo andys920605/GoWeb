@@ -35,17 +35,11 @@ type ErrorResponse struct {
 }
 
 // region public mehtods
-// override render
-// @param w http.ResponseWriter
-// @param r *http.Request
-// @result error
 func (e *ErrorResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	render.Status(r, e.StatusCode)
 	return nil
-} // Austin 20220202
+}
 
-// new bad request error renderer
-// @param err error
 func BadRequestErrRenderer(err error) *ErrorResponse {
 	return &ErrorResponse{
 		Err:        err,
@@ -53,10 +47,8 @@ func BadRequestErrRenderer(err error) *ErrorResponse {
 		StatusText: BadRequestStr,
 		Message:    err.Error(),
 	}
-} // Austin 20220202
+}
 
-// new not found error renderer
-// @param err error
 func NotFoundErrRenderer(err error) *ErrorResponse {
 	return &ErrorResponse{
 		Err:        err,
@@ -64,10 +56,8 @@ func NotFoundErrRenderer(err error) *ErrorResponse {
 		StatusText: NotFoundStr,
 		Message:    err.Error(),
 	}
-} // Austin 20220202
+}
 
-// server erroer renderer
-// @param err error
 func ServerErrRenderer(err error) *ErrorResponse {
 	return &ErrorResponse{
 		Err:        err,
@@ -75,10 +65,8 @@ func ServerErrRenderer(err error) *ErrorResponse {
 		StatusText: InternalServerErrorStr,
 		Message:    err.Error(),
 	}
-} // Austin 20220202
+}
 
-// not modified erroer renderer
-// @param err error
 func NotModifiedErrRenderer(err error) *ErrorResponse {
 	return &ErrorResponse{
 		Err:        err,
@@ -86,10 +74,8 @@ func NotModifiedErrRenderer(err error) *ErrorResponse {
 		StatusText: StatusNotModified,
 		Message:    err.Error(),
 	}
-} // Eden 20220418
+}
 
-// conflict erroer renderer
-// @param err error
 func ConflictErrRenderer(err error) *ErrorResponse {
 	return &ErrorResponse{
 		Err:        err,
@@ -97,6 +83,6 @@ func ConflictErrRenderer(err error) *ErrorResponse {
 		StatusText: StatusConflict,
 		Message:    err.Error(),
 	}
-} // Eden 20220418
+}
 
 // endregion

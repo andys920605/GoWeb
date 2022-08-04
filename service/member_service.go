@@ -2,7 +2,7 @@ package service
 
 import (
 	models_rep "GoWeb/models/repository"
-	rep "GoWeb/repository"
+	rep "GoWeb/repository/postgredb"
 	"context"
 	"time"
 

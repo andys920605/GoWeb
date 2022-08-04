@@ -2,7 +2,7 @@ package main
 
 import (
 	"GoWeb/database"
-	rep "GoWeb/repository"
+	rep "GoWeb/repository/postgredb"
 	"GoWeb/router"
 	srv "GoWeb/service"
 
@@ -12,10 +12,11 @@ import (
 
 func main() {
 	// new postgres db
-	db, err := database.NewDb()
-	if err != nil {
+	db, postgreErr := database.NewDb()
+	if postgreErr != nil {
 		return
 	}
+	// new redis db
 	_, redisErr := database.NewRedis()
 	if redisErr != nil {
 		return

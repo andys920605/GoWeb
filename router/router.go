@@ -30,13 +30,17 @@ func (router *Router) InitRouter() *gin.Engine {
 			"message": "pong",
 		})
 	})
+	// 會員
 	v1.POST("/members", router.createMember)
 	v1.GET("/members", router.getMember)
 	v1.PUT("/members/:account", router.updateMember)
 	v1.DELETE("/members/:account", router.disableMember)
+	// Login
+	v1.POST("/login", router.login)
 	return r
 }
 
+// region CRUD會員資料
 // v1/members
 func (router *Router) createMember(c *gin.Context) {
 	var payload models_rep.Member
@@ -107,3 +111,25 @@ func (router *Router) disableMember(c *gin.Context) {
 		"message": "ok",
 	})
 }
+
+// endregion
+
+// region Login
+// v1/login
+func (router *Router) login(c *gin.Context) {
+	var payload models_rep.Member
+	if err := c.ShouldBind(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	errRsp := router.MemberSvc.CreateMember(&payload)
+	if errRsp != nil {
+		c.JSON(http.StatusInternalServerError, errRsp)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
+	})
+}
+
+// endregion

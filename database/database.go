@@ -42,6 +42,6 @@ func NewDb() (*gorm.DB, error) {
 	// If MaxOpenConns is greater than 0 but less than the new MaxIdleConns, then the new MaxIdleConns will be reduced to match the MaxOpenConns limit.
 	db.DB().SetMaxIdleConns(maxIdleConns)
 	db.DB().SetConnMaxIdleTime(connMaxIdleTime * time.Second)
-	log.Println("DB:OK")
+	log.Println("Postgres connected")
 	return db, nil
 }

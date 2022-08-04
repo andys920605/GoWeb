@@ -9,7 +9,7 @@ postgres:
   PgDriver: postgres
 
 redis:
-  RedisAddr: 192.168.17.57:6379
+  RedisAddr: 192.168.17.XX:6379
   RedisPassword:
   RedisDb: 0
   RedisDefaultdb: 0

@@ -31,8 +31,9 @@ func di(db *gorm.DB) router.IRouter {
 	MemberRepo := rep.NewMemberRepo(db)
 	//Srv
 	MemberSrv := srv.NewMemberSrv(MemberRepo)
+	LoginSrv := srv.NewLoginSrv(MemberRepo)
 	//Router
-	Router := router.NewRouter(MemberSrv)
+	Router := router.NewRouter(MemberSrv, LoginSrv)
 
 	return Router
 

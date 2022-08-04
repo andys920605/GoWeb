@@ -2,6 +2,7 @@ package router
 
 import (
 	models_rep "GoWeb/models/repository"
+	models_srv "GoWeb/models/service"
 	srv "GoWeb/service"
 	"net/http"
 
@@ -14,11 +15,13 @@ type IRouter interface {
 
 type Router struct {
 	MemberSvc srv.IMemberSrv
+	LoginSvc  srv.ILoginSrv
 }
 
-func NewRouter(IMemberSrv srv.IMemberSrv) IRouter {
+func NewRouter(IMemberSrv srv.IMemberSrv, ILoginSrv srv.ILoginSrv) IRouter {
 	return &Router{
 		MemberSvc: IMemberSrv,
+		LoginSvc:  ILoginSrv,
 	}
 }
 
@@ -117,19 +120,17 @@ func (router *Router) disableMember(c *gin.Context) {
 // region Login
 // v1/login
 func (router *Router) login(c *gin.Context) {
-	var payload models_rep.Member
+	var payload models_srv.LoginReq
 	if err := c.ShouldBind(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
-	errRsp := router.MemberSvc.CreateMember(&payload)
+	token, errRsp := router.LoginSvc.Login(&payload)
 	if errRsp != nil {
 		c.JSON(http.StatusInternalServerError, errRsp)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "ok",
-	})
+	c.JSON(http.StatusOK, token)
 }
 
 // endregion

@@ -40,14 +40,14 @@ func (rep *MemberRepo) Insert(ctx context.Context, param *models_rep.Member) err
 	}
 	return nil
 }
-func (rep *MemberRepo) Find(ctx context.Context, id string, phone string) (*models_rep.Member, error) {
+func (rep *MemberRepo) Find(ctx context.Context, account string, phone string) (*models_rep.Member, error) {
 	rep.mutex.Lock()
 	defer rep.mutex.Unlock()
 	db := rep.db.DB()
 	result := &models_rep.Member{}
 	query := `SELECT account,password,permission,name,email,phone,address,create_at FROM member` +
 		` WHERE is_alive = true AND account =$1 OR phone = $2 ORDER BY id`
-	row := db.QueryRowContext(ctx, query, id, phone)
+	row := db.QueryRowContext(ctx, query, account, phone)
 	if err := row.Scan(&result.Account, &result.Password, &result.Permission, &result.Name, &result.Email, &result.Phone, &result.Address, &result.CreateAt); err != nil {
 		return nil, err
 	}

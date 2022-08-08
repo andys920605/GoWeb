@@ -3,6 +3,7 @@ package router
 import (
 	models_rep "GoWeb/models/repository"
 	models_srv "GoWeb/models/service"
+	"GoWeb/router/middlewares"
 	srv "GoWeb/service"
 	"net/http"
 
@@ -27,7 +28,9 @@ func NewRouter(IMemberSrv srv.IMemberSrv, ILoginSrv srv.ILoginSrv) IRouter {
 
 func (router *Router) InitRouter() *gin.Engine {
 	r := gin.Default()
-	v1 := r.Group("/v1")
+	v1 := r.Group("/v1")                  // 不用token
+	v2 := r.Group("/v2")                  // 要token
+	v2.Use(middlewares.JWTAuthMiddleware) // use the Bearer Authentication middleware
 	v1.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
@@ -35,9 +38,9 @@ func (router *Router) InitRouter() *gin.Engine {
 	})
 	// 會員
 	v1.POST("/members", router.createMember)
-	v1.GET("/members", router.getMember)
-	v1.PUT("/members/:account", router.updateMember)
-	v1.DELETE("/members/:account", router.disableMember)
+	v2.GET("/members", router.getMember)
+	v2.PUT("/members/:account", router.updateMember)
+	v2.DELETE("/members/:account", router.disableMember)
 	// Login
 	v1.POST("/login", router.login)
 	return r

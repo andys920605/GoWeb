@@ -28,9 +28,9 @@ func NewRouter(IMemberSrv srv.IMemberSrv, ILoginSrv srv.ILoginSrv) IRouter {
 
 func (router *Router) InitRouter() *gin.Engine {
 	r := gin.Default()
-	v1 := r.Group("/v1")                  // 不用token
-	v2 := r.Group("/v2")                  // 要token
-	v2.Use(middlewares.JWTAuthMiddleware) // use the Bearer Authentication middleware
+	v1 := r.Group("/v1")                    // 不用token
+	v2 := r.Group("/v2")                    // 要token
+	v2.Use(middlewares.JWTAuthMiddleware()) // use the Bearer Authentication middleware
 	v1.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
@@ -64,6 +64,8 @@ func (router *Router) createMember(c *gin.Context) {
 	})
 }
 func (router *Router) getMember(c *gin.Context) {
+	result := c.MustGet("account").(*models_srv.Claims)
+	println(result)
 	account := c.Query("account")
 	phone := c.Query("phone")
 	if account != "" || phone != "" {

@@ -21,7 +21,7 @@ type LoginSrv struct {
 }
 
 // jwt secret key
-var jwtSecret = []byte("secret")
+var JwtSecret = []byte("secret")
 
 func NewLoginSrv(IMemberRepo rep.IMemberRepo) ILoginSrv {
 	return &LoginSrv{
@@ -59,7 +59,7 @@ func (svc *LoginSrv) Login(param *models_srv.LoginReq) (*string, *errs.ErrorResp
 		},
 	}
 	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := tokenClaims.SignedString(jwtSecret)
+	token, err := tokenClaims.SignedString(JwtSecret)
 	if err != nil {
 		return nil, &errs.ErrorResponse{
 			Message: fmt.Sprintf("jwt err:%s", err.Error()),

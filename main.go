@@ -16,7 +16,7 @@ func main() {
 	if postgreErr != nil {
 		return
 	}
-	// new redis db
+	//new redis db
 	_, redisErr := database.NewRedis()
 	if redisErr != nil {
 		return

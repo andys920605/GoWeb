@@ -1,7 +1,8 @@
 package middlewares
 
 import (
-	srv "GoWeb/Models/service"
+	srv "GoWeb/models/service"
+	"GoWeb/service"
 	"errors"
 	"net/http"
 	"strings"
@@ -13,7 +14,7 @@ import (
 // ParseToken Parse token
 func ParseToken(tokenString string) (*srv.Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &srv.Claims{}, func(token *jwt.Token) (i interface{}, err error) {
-		return SecretKey, nil
+		return service.JwtSecret, nil
 	})
 	if err != nil {
 		return nil, err
@@ -33,8 +34,7 @@ func JWTAuthMiddleware() func(c *gin.Context) {
 		authHeader := c.Request.Header.Get("Authorization")
 		if authHeader == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"code": -1,
-				"msg":  "Authorization is null in Header",
+				"message": "Authorization is null in Header",
 			})
 			c.Abort()
 			return
@@ -43,8 +43,7 @@ func JWTAuthMiddleware() func(c *gin.Context) {
 		parts := strings.SplitN(authHeader, " ", 2)
 		if !(len(parts) == 2 && parts[0] == "Bearer") {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"code": -1,
-				"msg":  "Format of Authorization is wrong",
+				"message": "Format of Authorization is wrong",
 			})
 			c.Abort()
 			return
@@ -53,14 +52,13 @@ func JWTAuthMiddleware() func(c *gin.Context) {
 		mc, err := ParseToken(parts[1])
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"code": -1,
-				"msg":  "Invalid Token.",
+				"message": "Invalid Token.",
 			})
 			c.Abort()
 			return
 		}
 		// Store Account info into Context
-		c.Set("account", mc.Account)
+		c.Set("account", mc)
 		// After that, we can get Account info from c.Get("account")
 		c.Next()
 	}

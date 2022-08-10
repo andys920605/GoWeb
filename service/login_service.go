@@ -13,7 +13,7 @@ import (
 )
 
 type ILoginSrv interface {
-	Login(*models_srv.LoginReq) (*string, *errs.ErrorResponse)
+	Login(*models_srv.LoginReq) (*models_srv.Scepter, *errs.ErrorResponse)
 }
 
 type LoginSrv struct {
@@ -28,7 +28,7 @@ func NewLoginSrv(IMemberRepo rep.IMemberRepo) ILoginSrv {
 		MemberRepo: IMemberRepo,
 	}
 }
-func (svc *LoginSrv) Login(param *models_srv.LoginReq) (*string, *errs.ErrorResponse) {
+func (svc *LoginSrv) Login(param *models_srv.LoginReq) (*models_srv.Scepter, *errs.ErrorResponse) {
 	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
 	defer cancel()
 	member, findErr := svc.MemberRepo.Find(ctx, param.Account, "")
@@ -54,8 +54,7 @@ func (svc *LoginSrv) Login(param *models_srv.LoginReq) (*string, *errs.ErrorResp
 			Id:        jwtId,
 			IssuedAt:  now.Unix(),
 			Issuer:    "ginJWT",
-			NotBefore: now.Add(10 * time.Second).Unix(),
-			Subject:   param.Account,
+			NotBefore: now.Add(1 * time.Second).Unix(),
 		},
 	}
 	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -65,5 +64,8 @@ func (svc *LoginSrv) Login(param *models_srv.LoginReq) (*string, *errs.ErrorResp
 			Message: fmt.Sprintf("jwt err:%s", err.Error()),
 		}
 	}
-	return &token, nil
+	return &models_srv.Scepter{
+		AccessToken: token,
+		TokenType:   "Bearer",
+	}, nil
 }

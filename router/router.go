@@ -28,26 +28,25 @@ func NewRouter(IMemberSrv srv.IMemberSrv, ILoginSrv srv.ILoginSrv) IRouter {
 
 func (router *Router) InitRouter() *gin.Engine {
 	r := gin.Default()
-	v1 := r.Group("/v1")                    // 不用token
-	v2 := r.Group("/v2")                    // 要token
-	v2.Use(middlewares.JWTAuthMiddleware()) // use the Bearer Authentication middleware
-	v1.GET("/ping", func(c *gin.Context) {
+	g1 := r.Group("/g1")                    // 不用token
+	g2 := r.Group("/g2")                    // 要token
+	g2.Use(middlewares.JWTAuthMiddleware()) // use the Bearer Authentication middleware
+	g1.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
 	// 會員
-	v1.POST("/members", router.createMember)
-	v2.GET("/members", router.getMember)
-	v2.PUT("/members/:account", router.updateMember)
-	v2.DELETE("/members/:account", router.disableMember)
+	g1.POST("/member", router.createMember)
+	g2.GET("/member", router.getMember)
+	g2.PUT("/member/:account", router.updateMember)
+	g2.DELETE("/member/:account", router.disableMember)
 	// Login
-	v1.POST("/login", router.login)
+	g1.POST("/login", router.login)
 	return r
 }
 
 // region CRUD會員資料
-// v1/members
 func (router *Router) createMember(c *gin.Context) {
 	var payload models_rep.Member
 	if err := c.ShouldBind(&payload); err != nil {
@@ -123,7 +122,6 @@ func (router *Router) disableMember(c *gin.Context) {
 // endregion
 
 // region Login
-// v1/login
 func (router *Router) login(c *gin.Context) {
 	var payload models_srv.LoginReq
 	if err := c.ShouldBind(&payload); err != nil {

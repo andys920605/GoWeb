@@ -14,3 +14,9 @@ type Claims struct {
 	Role    string `json:"role"`
 	jwt.StandardClaims
 }
+
+// 權杖
+type Scepter struct {
+	AccessToken string `json:"access_token"`
+	TokenType   string `json:"token_type"`
+}

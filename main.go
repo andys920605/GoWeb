@@ -10,6 +10,10 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
+var (
+	redisBool = true
+)
+
 func main() {
 	// new postgres db
 	db, postgreErr := database.NewDb()
@@ -17,9 +21,11 @@ func main() {
 		return
 	}
 	//new redis db
-	_, redisErr := database.NewRedis()
-	if redisErr != nil {
-		return
+	if redisBool {
+		_, redisErr := database.NewRedis()
+		if redisErr != nil {
+			return
+		}
 	}
 	app := di(db)
 	server := app.InitRouter()

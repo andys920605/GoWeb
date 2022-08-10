@@ -26,7 +26,6 @@ func ParseToken(tokenString string) (*srv.Claims, error) {
 	return nil, errors.New("invalid token")
 }
 
-// endregion
 // JWTAuthMiddleware
 func JWTAuthMiddleware() func(c *gin.Context) {
 	return func(c *gin.Context) {

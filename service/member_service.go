@@ -4,6 +4,8 @@ import (
 	models_rep "GoWeb/models/repository"
 	rep "GoWeb/repository/postgredb"
 	"context"
+	"fmt"
+	"net/http"
 	"time"
 
 	"GoWeb/utils/errs"
@@ -12,7 +14,7 @@ import (
 type IMemberSrv interface {
 	CreateMember(*models_rep.Member) *errs.ErrorResponse
 	GetAllMember() (*[]models_rep.Member, *errs.ErrorResponse)
-	GetMember(string, string) (*models_rep.Member, *errs.ErrorResponse)
+	GetMember(*string, *string) (*models_rep.Member, *errs.ErrorResponse)
 	UpdateMember(*models_rep.UpdateMember) *errs.ErrorResponse
 	DisableMember(*models_rep.UpdateMember) *errs.ErrorResponse
 }
@@ -52,10 +54,10 @@ func (svc *MemberSrv) GetAllMember() (*[]models_rep.Member, *errs.ErrorResponse)
 	}
 	return result, nil
 }
-func (svc *MemberSrv) GetMember(id string, phone string) (*models_rep.Member, *errs.ErrorResponse) {
+func (svc *MemberSrv) GetMember(account *string, phone *string) (*models_rep.Member, *errs.ErrorResponse) {
 	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
 	defer cancel()
-	result, err := svc.MemberRepo.Find(ctx, id, phone)
+	result, err := svc.MemberRepo.Find(ctx, account, phone)
 	if err != nil {
 		return nil, &errs.ErrorResponse{
 			Message: err.Error(),
@@ -66,12 +68,19 @@ func (svc *MemberSrv) GetMember(id string, phone string) (*models_rep.Member, *e
 func (svc *MemberSrv) UpdateMember(param *models_rep.UpdateMember) *errs.ErrorResponse {
 	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
 	defer cancel()
-	err := svc.MemberRepo.Updates(ctx, param)
-	if err != nil {
+	_, findErr := svc.MemberRepo.Find(ctx, &param.Account, nil)
+	if findErr != nil {
+		return &errs.ErrorResponse{
+			StatusCode: http.StatusNotFound,
+			Message:    fmt.Sprintf("%s is not exits", param.Account),
+		}
+	}
+	if err := svc.MemberRepo.Updates(ctx, param); err != nil {
 		return &errs.ErrorResponse{
 			Message: err.Error(),
 		}
 	}
+
 	return nil
 }
 func (svc *MemberSrv) DisableMember(param *models_rep.UpdateMember) *errs.ErrorResponse {

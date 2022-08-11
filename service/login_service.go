@@ -31,7 +31,7 @@ func NewLoginSrv(IMemberRepo rep.IMemberRepo) ILoginSrv {
 func (svc *LoginSrv) Login(param *models_srv.LoginReq) (*models_srv.Scepter, *errs.ErrorResponse) {
 	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
 	defer cancel()
-	member, findErr := svc.MemberRepo.Find(ctx, param.Account, "")
+	member, findErr := svc.MemberRepo.Find(ctx, &param.Account, nil)
 	if findErr != nil {
 		return nil, &errs.ErrorResponse{
 			Message: "查無此帳號",

@@ -68,7 +68,7 @@ func (router *Router) getMember(c *gin.Context) {
 	account := c.Query("account")
 	phone := c.Query("phone")
 	if account != "" || phone != "" {
-		result, errRsp := router.MemberSvc.GetMember(account, phone)
+		result, errRsp := router.MemberSvc.GetMember(&account, &phone)
 		if errRsp != nil {
 			c.JSON(http.StatusInternalServerError, errRsp)
 			return
@@ -94,7 +94,7 @@ func (router *Router) updateMember(c *gin.Context) {
 	}
 	errRsp := router.MemberSvc.UpdateMember(&payload)
 	if errRsp != nil {
-		c.JSON(http.StatusInternalServerError, errRsp)
+		c.JSON(errRsp.StatusCode, errRsp)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{

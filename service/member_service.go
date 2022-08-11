@@ -68,11 +68,10 @@ func (svc *MemberSrv) GetMember(account *string, phone *string) (*models_rep.Mem
 func (svc *MemberSrv) UpdateMember(param *models_rep.UpdateMember) *errs.ErrorResponse {
 	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
 	defer cancel()
-	_, findErr := svc.MemberRepo.Find(ctx, &param.Account, nil)
-	if findErr != nil {
+	if _, err := svc.MemberRepo.Find(ctx, &param.Account, nil); err != nil {
 		return &errs.ErrorResponse{
 			StatusCode: http.StatusNotFound,
-			Message:    fmt.Sprintf("%s is not exits", param.Account),
+			Message:    fmt.Sprintf("The account %s does not exits", param.Account),
 		}
 	}
 	if err := svc.MemberRepo.Updates(ctx, param); err != nil {
@@ -80,14 +79,18 @@ func (svc *MemberSrv) UpdateMember(param *models_rep.UpdateMember) *errs.ErrorRe
 			Message: err.Error(),
 		}
 	}
-
 	return nil
 }
 func (svc *MemberSrv) DisableMember(param *models_rep.UpdateMember) *errs.ErrorResponse {
 	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
 	defer cancel()
-	err := svc.MemberRepo.Disable(ctx, param)
-	if err != nil {
+	if _, err := svc.MemberRepo.Find(ctx, &param.Account, nil); err != nil {
+		return &errs.ErrorResponse{
+			StatusCode: http.StatusNotFound,
+			Message:    fmt.Sprintf("The account %s does not exits", param.Account),
+		}
+	}
+	if err := svc.MemberRepo.Disable(ctx, param); err != nil {
 		return &errs.ErrorResponse{
 			Message: err.Error(),
 		}

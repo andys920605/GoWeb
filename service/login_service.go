@@ -3,6 +3,7 @@ package service
 import (
 	models_srv "GoWeb/models/service"
 	rep "GoWeb/repository/postgredb"
+	"GoWeb/utils/crypto"
 	"GoWeb/utils/errs"
 	"context"
 	"fmt"
@@ -37,7 +38,8 @@ func (svc *LoginSrv) Login(param *models_srv.LoginReq) (*models_srv.Scepter, *er
 			Message: "查無此帳號",
 		}
 	}
-	if member.Password != param.Password {
+	hash := crypto.NewSHA256([]byte(param.Password))
+	if member.Password != fmt.Sprintf("%x", hash[:]) {
 		return nil, &errs.ErrorResponse{
 			Message: "密碼錯誤",
 		}

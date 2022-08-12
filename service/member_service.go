@@ -3,12 +3,12 @@ package service
 import (
 	models_rep "GoWeb/models/repository"
 	rep "GoWeb/repository/postgredb"
+	"GoWeb/utils/crypto"
+	"GoWeb/utils/errs"
 	"context"
 	"fmt"
 	"net/http"
 	"time"
-
-	"GoWeb/utils/errs"
 )
 
 type IMemberSrv interface {
@@ -36,6 +36,8 @@ func NewMemberSrv(IMemberRepo rep.IMemberRepo) IMemberSrv {
 func (svc *MemberSrv) CreateMember(param *models_rep.Member) *errs.ErrorResponse {
 	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
 	defer cancel()
+	hash := crypto.NewSHA256([]byte(param.Password))
+	param.Password = fmt.Sprintf("%x", hash[:])
 	if err := svc.MemberRepo.Insert(ctx, param); err != nil {
 		return &errs.ErrorResponse{
 			Message: err.Error(),

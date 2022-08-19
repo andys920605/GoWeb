@@ -2,9 +2,12 @@ package main
 
 import (
 	"GoWeb/database"
+	"GoWeb/infras/configs"
 	rep "GoWeb/repository/postgredb"
 	"GoWeb/router"
 	srv "GoWeb/service"
+	"GoWeb/utils"
+	"log"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/joho/godotenv/autoload"
@@ -12,17 +15,20 @@ import (
 
 var (
 	redisBool = true
+	cfgTemp   *configs.Config
 )
 
 func main() {
+	config := ProvideConfig()
+
 	// new postgres db
-	db, postgreErr := database.NewDb()
+	db, postgreErr := database.NewDb(config)
 	if postgreErr != nil {
 		return
 	}
 	//new redis db
 	if redisBool {
-		_, redisErr := database.NewRedis()
+		_, redisErr := database.NewRedis(config)
 		if redisErr != nil {
 			return
 		}
@@ -43,4 +49,17 @@ func di(db *gorm.DB) router.IRouter {
 
 	return Router
 
+}
+
+// new config
+func ProvideConfig() *configs.Config {
+	buffer, err := configs.LoadConfig(utils.GetConfigPath())
+	if err != nil {
+		log.Fatalf("LoadConfig: %v", err)
+	}
+	cfgTemp, err = configs.ParseConfig(buffer)
+	if err != nil {
+		log.Fatalf("ParseConfig: %v", err)
+	}
+	return cfgTemp
 }

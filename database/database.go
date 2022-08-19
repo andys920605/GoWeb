@@ -1,9 +1,9 @@
 package database
 
 import (
+	"GoWeb/infras/configs"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -17,17 +17,16 @@ const (
 	connMaxIdleTime = 20
 )
 
-func NewDb() (*gorm.DB, error) {
-	dataSourceName := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s search_path=%s",
-		os.Getenv("PG_HOST"),
-		os.Getenv("PG_PORT"),
-		os.Getenv("PG_USER"),
-		os.Getenv("PG_DATABASE"),
-		os.Getenv("PG_SSLMODE"),
-		os.Getenv("PG_PASSWORD"),
-		os.Getenv("PG_SCHEAM"),
+func NewDb(cfg *configs.Config) (*gorm.DB, error) {
+	dataSourceName := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s search_path=%s",
+		cfg.Postgres.Host,
+		cfg.Postgres.Port,
+		cfg.Postgres.User,
+		cfg.Postgres.Dbname,
+		cfg.Postgres.Password,
+		cfg.Postgres.Schema,
 	)
-	db, err := gorm.Open(os.Getenv("PG_DRIVER"), dataSourceName)
+	db, err := gorm.Open(cfg.Postgres.PgDriver, dataSourceName)
 	if err != nil {
 		log.Printf("Conn postgres err message:%e", err)
 		return nil, err

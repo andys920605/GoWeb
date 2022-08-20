@@ -18,11 +18,12 @@ const (
 )
 
 func NewDb(cfg *configs.Config) (*gorm.DB, error) {
-	dataSourceName := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s search_path=%s",
+	dataSourceName := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s search_path=%s",
 		cfg.Postgres.Host,
 		cfg.Postgres.Port,
 		cfg.Postgres.User,
 		cfg.Postgres.Dbname,
+		cfg.Postgres.SSLMode,
 		cfg.Postgres.Password,
 		cfg.Postgres.Schema,
 	)

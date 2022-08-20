@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	redisBool = true
+	redisBool = false
 	cfgTemp   *configs.Config
 )
 

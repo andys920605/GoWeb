@@ -1,4 +1,4 @@
-package repository
+package postgredb
 
 import (
 	models_rep "GoWeb/models/repository"
@@ -12,12 +12,14 @@ import (
 	"github.com/xorcare/pointer"
 )
 
+//go:generate mockgen -destination=../../test/mock/imember_mock_repository.go -package=mock GoWeb/repository/postgredb IMemberRepo
 type IMemberRepo interface {
 	Insert(context.Context, *models_rep.Member) error
 	Find(context.Context, *string, *string) (*models_rep.Member, error)
 	FindAll(context.Context) (*[]models_rep.Member, error)
 	Updates(context.Context, *models_rep.UpdateMember) error
 	Disable(context.Context, *models_rep.UpdateMember) error
+	Close()
 }
 type MemberRepo struct {
 	mutex sync.Mutex
@@ -28,6 +30,11 @@ func NewMemberRepo(db *gorm.DB) IMemberRepo {
 	return &MemberRepo{
 		db: db,
 	}
+}
+
+// Close attaches the provider and close the connection
+func (rep *MemberRepo) Close() {
+	rep.db.Close()
 }
 
 func (rep *MemberRepo) Insert(ctx context.Context, param *models_rep.Member) error {

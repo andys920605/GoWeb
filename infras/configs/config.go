@@ -40,7 +40,7 @@ type PostgresConfig struct {
 	Password string
 	Dbname   string
 	Schema   string
-	SSLMode  bool
+	SSLMode  string
 	PgDriver string
 }
 

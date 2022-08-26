@@ -30,3 +30,10 @@ func ConvertToDateTimeString(now *time.Time, separator string) string {
 	format := fmt.Sprintf("2006%s01%s02 15:04:05", separator, separator)
 	return now.Format(format)
 }
+
+// convert hours to seconds
+// @hours hours
+// @result seconds
+func ConvertHoursToSeconds(hours int) int {
+	return int((time.Duration(hours) * time.Hour).Seconds())
+}

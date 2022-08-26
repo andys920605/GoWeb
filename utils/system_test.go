@@ -14,3 +14,10 @@ func TestConvertToDateTimeString(t *testing.T) {
 	var got = utils.ConvertToDateTimeString(&now, "-")
 	assert.Equal(t, want, got)
 }
+
+func TestConvertHoursToSeconds(t *testing.T) {
+	hours := 3
+	want := 3 * 3600
+	got := utils.ConvertHoursToSeconds(hours)
+	assert.Equal(t, want, got)
+}

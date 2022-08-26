@@ -5,8 +5,8 @@ import (
 	"context"
 )
 
-//go:generate mockgen -destination=../../test/mock/imember_mock_repository.go -package=mock GoWeb/repository/interface IMemberRepo
-type IMemberRepo interface {
+//go:generate mockgen -destination=../../test/mock/imember_mock_repository.go -package=mock GoWeb/repository/interface IMemberRep
+type IMemberRep interface {
 	Insert(context.Context, *models_rep.Member) error
 	Find(context.Context, *string, *string) (*models_rep.Member, error)
 	FindAll(context.Context) (*[]models_rep.Member, error)

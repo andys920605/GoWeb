@@ -9,4 +9,7 @@ const (
 	AuthorizationHeaderKey      = "Authorization"
 	AppUrlencodedHeaderVal      = "application/x-www-form-urlencoded"
 	TokenTypeBearer             = "Bearer"
+
+	// for Cache
+	CacheTokenClientId = "mbr_accts:clientId:"
 )

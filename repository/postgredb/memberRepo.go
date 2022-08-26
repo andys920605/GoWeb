@@ -19,7 +19,7 @@ type MemberRepo struct {
 	db    *gorm.DB
 }
 
-func NewMemberRepo(db *gorm.DB) rep_interface.IMemberRepo {
+func NewMemberRepo(db *gorm.DB) rep_interface.IMemberRep {
 	return &MemberRepo{
 		db: db,
 	}

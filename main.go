@@ -3,12 +3,14 @@ package main
 import (
 	"GoWeb/database"
 	"GoWeb/infras/configs"
-	rep "GoWeb/repository/postgredb"
+	rep_db "GoWeb/repository/postgredb"
+	rep_redis "GoWeb/repository/redisdb"
 	"GoWeb/router"
 	srv "GoWeb/service"
 	"GoWeb/utils"
 	"log"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/gorm"
 	_ "github.com/joho/godotenv/autoload"
 )
@@ -27,23 +29,22 @@ func main() {
 		return
 	}
 	//new redis db
-	if redisBool {
-		_, redisErr := database.NewRedis(config)
-		if redisErr != nil {
-			return
-		}
+	redis, redisErr := database.NewRedis(config)
+	if redisErr != nil {
+		return
 	}
-	app := di(db)
+	app := di(config, db, redis)
 	server := app.InitRouter()
 	server.Run(":8070")
 }
 
-func di(db *gorm.DB) router.IRouter {
+func di(cfg *configs.Config, db *gorm.DB, redis *redis.Client) router.IRouter {
 	//Repo
-	MemberRepo := rep.NewMemberRepo(db)
+	MemberRepo := rep_db.NewMemberRepo(db)
+	CacheRep := rep_redis.NewCacheRepository(redis)
 	//Srv
 	MemberSrv := srv.NewMemberSrv(MemberRepo)
-	LoginSrv := srv.NewLoginSrv(MemberRepo)
+	LoginSrv := srv.NewLoginSrv(cfg, MemberRepo, CacheRep)
 	//Router
 	Router := router.NewRouter(MemberSrv, LoginSrv)
 

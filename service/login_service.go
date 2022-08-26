@@ -1,10 +1,12 @@
 package service
 
 import (
-	models_srv "GoWeb/models/service"
+	"GoWeb/infras/configs"
+	models_const "GoWeb/models"
+	models_svc "GoWeb/models/service"
 	rep "GoWeb/repository/interface"
 	svc_interface "GoWeb/service/interface"
-
+	"GoWeb/utils"
 	"GoWeb/utils/crypto"
 	"GoWeb/utils/errs"
 	"context"
@@ -12,25 +14,31 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-delve/delve/pkg/config"
 	"github.com/golang-jwt/jwt"
 )
 
 type LoginSrv struct {
-	MemberRepo rep.IMemberRepo
+	cfg       *config.Config
+	memberRep rep.IMemberRep
+	cacheRep  rep.ICacheRep
 }
 
 // jwt secret key
 var JwtSecret = []byte("secret")
 
-func NewLoginSrv(IMemberRepo rep.IMemberRepo) svc_interface.ILoginSrv {
+func NewLoginSrv(config *configs.Config, IMemberRep rep.IMemberRep, ICacheRep rep.ICacheRep) svc_interface.ILoginSrv {
 	return &LoginSrv{
-		MemberRepo: IMemberRepo,
+		cfg:       config,
+		memberRep: IMemberRep,
+		cacheRep:  ICacheRep,
 	}
 }
-func (svc *LoginSrv) Login(param *models_srv.LoginReq) (*models_srv.Scepter, *errs.ErrorResponse) {
+
+func (svc *LoginSrv) Login(param *models_svc.LoginReq) (*models_svc.Scepter, *errs.ErrorResponse) {
 	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
 	defer cancel()
-	member, findErr := svc.MemberRepo.Find(ctx, &param.Account, nil)
+	member, findErr := svc.memberRep.Find(ctx, &param.Account, nil)
 	if findErr != nil {
 		return nil, &errs.ErrorResponse{
 			Message: "查無此帳號",
@@ -45,7 +53,7 @@ func (svc *LoginSrv) Login(param *models_srv.LoginReq) (*models_srv.Scepter, *er
 	now := time.Now()
 	jwtId := param.Account + strconv.FormatInt(now.Unix(), 10)
 	// set claims and sign
-	claims := &models_srv.Claims{
+	claims := &models_svc.Claims{
 		Account: param.Account,
 		Role:    strconv.Itoa(member.Permission),
 		StandardClaims: jwt.StandardClaims{
@@ -64,7 +72,10 @@ func (svc *LoginSrv) Login(param *models_srv.LoginReq) (*models_srv.Scepter, *er
 			Message: fmt.Sprintf("jwt err:%s", err.Error()),
 		}
 	}
-	return &models_srv.Scepter{
+	// set cache
+	redisModel := *claims
+	svc.cacheRep.SetTokenCtx(ctx, models_const.CacheTokenClientId+param.Account, utils.ConvertHoursToSeconds(svc.cfg.Redis.AcctCacheTTL), &redisModel)
+	return &models_svc.Scepter{
 		AccessToken: token,
 		TokenType:   "Bearer",
 	}, nil

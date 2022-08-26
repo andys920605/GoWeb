@@ -17,10 +17,10 @@ var (
 )
 
 type MemberSrv struct {
-	MemberRepo rep.IMemberRepo
+	MemberRepo rep.IMemberRep
 }
 
-func NewMemberSrv(IMemberRepo rep.IMemberRepo) svc_interface.IMemberSrv {
+func NewMemberSrv(IMemberRepo rep.IMemberRep) svc_interface.IMemberSrv {
 	return &MemberSrv{
 		MemberRepo: IMemberRepo,
 	}

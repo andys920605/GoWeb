@@ -1,8 +1,11 @@
 package redisdb
 
 import (
+	models_svc "GoWeb/models/service"
 	rep_interface "GoWeb/repository/interface"
 	"context"
+	"encoding/json"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/opentracing/opentracing-go"
@@ -16,16 +19,42 @@ type CacheRepository struct {
 // new cache repository instance
 // @param client
 // @result cache repository
-func NewCacheRepository(redisClient *redis.Client) rep_interface.ICacheRepo {
+func NewCacheRepository(redisClient *redis.Client) rep_interface.ICacheRep {
 	return &CacheRepository{
 		client: redisClient,
 	}
 }
 
-// Delete from cache
-// @param context
-// @param key
-// @result error
+// get token cache
+func (cache *CacheRepository) GetTokenByIDCtx(ctx context.Context, key string) (*models_svc.Scepter, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "CacheRepository.GetTokenByIDCtx")
+	defer span.Finish()
+	dataBytes, err := cache.client.Get(ctx, key).Bytes()
+	if err != nil {
+		return nil, errors.Wrap(err, "CacheRepository.GetTokenByIDCtx.redisClient.Get")
+	}
+	data := &models_svc.Scepter{}
+	if err = json.Unmarshal(dataBytes, data); err != nil {
+		return nil, errors.Wrap(err, "CacheRepository.GetTokenByIDCtx.json.Unmarshal")
+	}
+	return data, nil
+}
+
+// set token cache
+func (cache *CacheRepository) SetTokenCtx(ctx context.Context, key string, seconds int, item *models_svc.Scepter) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "CacheRepository.SetTokenCtx")
+	defer span.Finish()
+	dataBytes, err := json.Marshal(item)
+	if err != nil {
+		return errors.Wrap(err, "CacheRepository.SetTokenCtx.json.Marshal")
+	}
+	if err = cache.client.Set(ctx, key, dataBytes, time.Second*time.Duration(seconds)).Err(); err != nil {
+		return errors.Wrap(err, "CacheRepository.SetTokenCtx.redis.Set")
+	}
+	return nil
+}
+
+// delete cache
 func (cache *CacheRepository) DeleteCtx(ctx context.Context, key string) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "CacheRepository.DeleteCtx")
 	defer span.Finish()

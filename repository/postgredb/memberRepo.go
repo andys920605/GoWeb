@@ -2,6 +2,7 @@ package postgredb
 
 import (
 	models_rep "GoWeb/models/repository"
+	rep_interface "GoWeb/repository/interface"
 	"context"
 	"database/sql"
 	"fmt"
@@ -13,21 +14,12 @@ import (
 	"github.com/xorcare/pointer"
 )
 
-//go:generate mockgen -destination=../../test/mock/imember_mock_repository.go -package=mock GoWeb/repository/postgredb IMemberRepo
-type IMemberRepo interface {
-	Insert(context.Context, *models_rep.Member) error
-	Find(context.Context, *string, *string) (*models_rep.Member, error)
-	FindAll(context.Context) (*[]models_rep.Member, error)
-	Updates(context.Context, *models_rep.UpdateMember) error
-	Disable(context.Context, *models_rep.UpdateMember) error
-	Close()
-}
 type MemberRepo struct {
 	mutex sync.Mutex
 	db    *gorm.DB
 }
 
-func NewMemberRepo(db *gorm.DB) IMemberRepo {
+func NewMemberRepo(db *gorm.DB) rep_interface.IMemberRepo {
 	return &MemberRepo{
 		db: db,
 	}

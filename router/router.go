@@ -4,7 +4,7 @@ import (
 	models_rep "GoWeb/models/repository"
 	models_srv "GoWeb/models/service"
 	"GoWeb/router/middlewares"
-	srv "GoWeb/service"
+	svc "GoWeb/service/interface"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,11 +15,11 @@ type IRouter interface {
 }
 
 type Router struct {
-	MemberSvc srv.IMemberSrv
-	LoginSvc  srv.ILoginSrv
+	MemberSvc svc.IMemberSrv
+	LoginSvc  svc.ILoginSrv
 }
 
-func NewRouter(IMemberSrv srv.IMemberSrv, ILoginSrv srv.ILoginSrv) IRouter {
+func NewRouter(IMemberSrv svc.IMemberSrv, ILoginSrv svc.ILoginSrv) IRouter {
 	return &Router{
 		MemberSvc: IMemberSrv,
 		LoginSvc:  ILoginSrv,

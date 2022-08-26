@@ -2,7 +2,9 @@ package service
 
 import (
 	models_srv "GoWeb/models/service"
-	rep "GoWeb/repository/postgredb"
+	rep "GoWeb/repository/interface"
+	svc_interface "GoWeb/service/interface"
+
 	"GoWeb/utils/crypto"
 	"GoWeb/utils/errs"
 	"context"
@@ -13,10 +15,6 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-type ILoginSrv interface {
-	Login(*models_srv.LoginReq) (*models_srv.Scepter, *errs.ErrorResponse)
-}
-
 type LoginSrv struct {
 	MemberRepo rep.IMemberRepo
 }
@@ -24,7 +22,7 @@ type LoginSrv struct {
 // jwt secret key
 var JwtSecret = []byte("secret")
 
-func NewLoginSrv(IMemberRepo rep.IMemberRepo) ILoginSrv {
+func NewLoginSrv(IMemberRepo rep.IMemberRepo) svc_interface.ILoginSrv {
 	return &LoginSrv{
 		MemberRepo: IMemberRepo,
 	}

@@ -2,7 +2,8 @@ package service
 
 import (
 	models_rep "GoWeb/models/repository"
-	rep "GoWeb/repository/postgredb"
+	rep "GoWeb/repository/interface"
+	svc_interface "GoWeb/service/interface"
 	"GoWeb/utils/crypto"
 	"GoWeb/utils/errs"
 	"context"
@@ -10,14 +11,6 @@ import (
 	"net/http"
 	"time"
 )
-
-type IMemberSrv interface {
-	CreateMember(*models_rep.Member) *errs.ErrorResponse
-	GetAllMember() (*[]models_rep.Member, *errs.ErrorResponse)
-	GetMember(*string, *string) (*models_rep.Member, *errs.ErrorResponse)
-	UpdateMember(*models_rep.UpdateMember) *errs.ErrorResponse
-	DisableMember(*models_rep.UpdateMember) *errs.ErrorResponse
-}
 
 var (
 	cancelTimeout time.Duration = 3 // default 3 second
@@ -27,7 +20,7 @@ type MemberSrv struct {
 	MemberRepo rep.IMemberRepo
 }
 
-func NewMemberSrv(IMemberRepo rep.IMemberRepo) IMemberSrv {
+func NewMemberSrv(IMemberRepo rep.IMemberRepo) svc_interface.IMemberSrv {
 	return &MemberSrv{
 		MemberRepo: IMemberRepo,
 	}

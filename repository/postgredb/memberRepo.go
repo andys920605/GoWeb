@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"sync"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/xorcare/pointer"
@@ -59,10 +60,10 @@ func (rep *MemberRepo) Find(ctx context.Context, account *string, phone *string)
 	if phone == nil {
 		phone = pointer.String("")
 	}
-	query := `SELECT account,password,permission,name,email,phone,address,create_at FROM member` +
+	query := `SELECT account,password,permission,name,email,phone,address,create_at,update_at FROM member` +
 		` WHERE is_alive = true AND account =$1 OR phone = $2 ORDER BY id`
 	row := db.QueryRowContext(ctx, query, *account, *phone)
-	if err := row.Scan(&result.Account, &result.Password, &result.Permission, &result.Name, &result.Email, &result.Phone, &result.Address, &result.CreateAt); err != nil {
+	if err := row.Scan(&result.Account, &result.Password, &result.Permission, &result.Name, &result.Email, &result.Phone, &result.Address, &result.CreateAt, &result.UpdateAt); err != nil {
 		return nil, err
 	}
 	return result, nil
@@ -72,7 +73,7 @@ func (rep *MemberRepo) FindAll(ctx context.Context) (*[]models_rep.Member, error
 	defer rep.mutex.Unlock()
 	db := rep.db.DB()
 	result := []models_rep.Member{}
-	query := `SELECT account,password,permission,name,email,phone,address,create_at
+	query := `SELECT account,password,permission,name,email,phone,address,create_at,update_at
 	FROM member
 	WHERE is_alive = true`
 	rows, err := db.QueryContext(ctx, query)
@@ -87,7 +88,7 @@ func (rep *MemberRepo) FindAll(ctx context.Context) (*[]models_rep.Member, error
 	}
 	for rows.Next() {
 		model := new(models_rep.Member)
-		if err := rows.Scan(&model.Account, &model.Password, &model.Permission, &model.Name, &model.Email, &model.Phone, &model.Address, &model.CreateAt); err != nil {
+		if err := rows.Scan(&model.Account, &model.Password, &model.Permission, &model.Name, &model.Email, &model.Phone, &model.Address, &model.CreateAt, &model.UpdateAt); err != nil {
 			return nil, err
 		}
 		result = append(result, *model)
@@ -99,8 +100,8 @@ func (rep *MemberRepo) Updates(ctx context.Context, param *models_rep.UpdateMemb
 	rep.mutex.Lock()
 	defer rep.mutex.Unlock()
 	db := rep.db.DB()
-	query := `UPDATE member SET name =$2, email =$3,phone=$4, address=$5 WHERE account = $1`
-	_, err := db.ExecContext(ctx, query, param.Account, param.Name, param.Email, param.Phone, param.Address)
+	query := `UPDATE member SET name =$2, email =$3,phone=$4, address=$5, update_at=$6 WHERE account = $1`
+	_, err := db.ExecContext(ctx, query, param.Account, param.Name, param.Email, param.Phone, param.Address, time.Now().Format(time.RFC3339))
 	if err != nil {
 		return fmt.Errorf("%s", err.Error())
 	}

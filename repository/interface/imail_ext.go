@@ -1,6 +1,10 @@
 package repositories_interface
 
+import (
+	models_ext "GoWeb/models/externals"
+)
+
 //go:generate mockgen -destination=../../test/mock/imail_mock_repository.go -package=mock GoWeb/repository/interface IMailRep
-type IMailRep interface {
-	Send(string) bool
+type IMailExt interface {
+	Send(*models_ext.SendMail) bool
 }

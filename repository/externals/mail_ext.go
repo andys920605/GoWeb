@@ -2,30 +2,31 @@ package externals
 
 import (
 	"GoWeb/infras/configs"
+	models_ext "GoWeb/models/externals"
 	rep_interface "GoWeb/repository/interface"
 	"log"
 	"net/smtp"
 )
 
-type MailRep struct {
+type MailExt struct {
 	cfg *configs.Config
 }
 
-func NewMailRep(config *configs.Config) rep_interface.IMailRep {
-	return &MailRep{
+func NewMailExt(config *configs.Config) rep_interface.IMailExt {
+	return &MailExt{
 		cfg: config,
 	}
 }
 
-func (rep *MailRep) Send(body string) bool {
+func (rep *MailExt) Send(mail *models_ext.SendMail) bool {
 	from := rep.cfg.Email.Account
 	pass := rep.cfg.Email.Password
-	to := "andys920605@gmail.com"
+	to := mail.TargetAddress
 
 	msg := "From: " + from + "\n" +
 		"To: " + to + "\n" +
-		"Subject: Hello there\n\n" +
-		body
+		"Subject:" + mail.Title + "\n\n" +
+		mail.Body
 
 	err := smtp.SendMail("smtp.gmail.com:587",
 		smtp.PlainAuth("", from, pass, "smtp.gmail.com"),

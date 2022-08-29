@@ -2,6 +2,7 @@ package examples_test
 
 import (
 	"GoWeb/infras/configs"
+	models_ext "GoWeb/models/externals"
 	ext "GoWeb/repository/externals"
 	rep_interface "GoWeb/repository/interface"
 	"GoWeb/utils"
@@ -10,7 +11,7 @@ import (
 )
 
 var (
-	mailExt rep_interface.IMailRep
+	mailExt rep_interface.IMailExt
 )
 
 func init() {
@@ -23,12 +24,23 @@ func init() {
 	if err != nil {
 		log.Fatalf("ParseConfig: %v", err)
 	}
-	mailExt = ext.NewMailRep(cfgTemp)
+	mailExt = ext.NewMailExt(cfgTemp)
 }
 
-func ExampleMailExternal_Send() {
-	ok := mailExt.Send("test123")
+func ExampleMailExt_Send() {
+	ok := mailExt.Send(createEmail())
 	fmt.Println(ok)
 	// Output:
 	// true
 }
+
+// region private function
+func createEmail() *models_ext.SendMail {
+	return &models_ext.SendMail{
+		TargetAddress: "andys920605@gmail.com",
+		Title:         "Example.Test",
+		Body:          "Success",
+	}
+}
+
+// endregion

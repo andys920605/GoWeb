@@ -36,6 +36,16 @@ func NewLoginSvc(config *configs.Config, IMemberRep rep.IMemberRep, ICacheRep re
 func (svc *LoginSrv) Login(param *models_svc.LoginReq) (*models_svc.Scepter, *errs.ErrorResponse) {
 	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
 	defer cancel()
+	// check token exist
+	if result, _ := svc.cacheRep.GetTokenByIDCtx(context.Background(), models_const.CacheTokenClientId+param.Account); result != nil {
+		token, _ := svc.hashClaims(result)
+		if token != nil {
+			return &models_svc.Scepter{
+				AccessToken: *token,
+				TokenType:   "Bearer",
+			}, nil
+		}
+	}
 	member, findErr := svc.memberRep.Find(ctx, &param.Account, nil)
 	if findErr != nil {
 		return nil, &errs.ErrorResponse{
@@ -63,18 +73,14 @@ func (svc *LoginSrv) Login(param *models_svc.LoginReq) (*models_svc.Scepter, *er
 			NotBefore: now.Add(1 * time.Second).Unix(),
 		},
 	}
-	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := tokenClaims.SignedString(JwtSecret)
+	token, err := svc.hashClaims(claims)
 	if err != nil {
-		return nil, &errs.ErrorResponse{
-			Message: fmt.Sprintf("jwt err:%s", err.Error()),
-		}
+		return nil, err
 	}
-	// set cache
 	redisModel := *claims
 	svc.cacheRep.SetTokenCtx(ctx, models_const.CacheTokenClientId+param.Account, svc.getCacheTime(), &redisModel)
 	return &models_svc.Scepter{
-		AccessToken: token,
+		AccessToken: *token,
 		TokenType:   "Bearer",
 	}, nil
 }
@@ -85,6 +91,18 @@ func (svc *LoginSrv) Login(param *models_svc.LoginReq) (*models_svc.Scepter, *er
 // return seconds
 func (svc *LoginSrv) getCacheTime() int {
 	return int((time.Duration(svc.cfg.Redis.CacheTTL) * time.Minute).Seconds())
+}
+
+// hash claims
+func (svc *LoginSrv) hashClaims(claims *models_svc.Claims) (*string, *errs.ErrorResponse) {
+	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token, err := tokenClaims.SignedString(JwtSecret)
+	if err != nil {
+		return nil, &errs.ErrorResponse{
+			Message: fmt.Sprintf("jwt err:%s", err.Error()),
+		}
+	}
+	return &token, nil
 }
 
 // endregion

@@ -14,7 +14,7 @@ func GetConfigPath() string {
 	} else if ConfigPath == "local" {
 		return "configs/config" // localhost
 	} else if ConfigPath == "example" {
-		return "configs/config-local"
+		return "../../configs/config"
 	}
 	return "config-local" // release - win-env
 }

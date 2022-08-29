@@ -30,3 +30,7 @@ logger:
   MaxBackups: 5
   MaxAge: 30
   MaxSize: 1
+
+email:
+  Account: exapmle@gmail.com
+  Password: exapmle

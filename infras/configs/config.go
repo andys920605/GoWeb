@@ -15,6 +15,7 @@ type Config struct {
 	Postgres PostgresConfig
 	Redis    RedisConfig
 	Logger   Logger
+	Email    Email
 }
 
 // Server config struct
@@ -69,6 +70,12 @@ type Logger struct {
 	MaxBackups    int
 	MaxAge        int
 	MaxSize       int
+}
+
+// Email config
+type Email struct {
+	Account  string
+	Password string
 }
 
 // endregion

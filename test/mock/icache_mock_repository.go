@@ -50,10 +50,10 @@ func (mr *MockICacheRepMockRecorder) DeleteCtx(arg0, arg1 interface{}) *gomock.C
 }
 
 // GetTokenByIDCtx mocks base method.
-func (m *MockICacheRep) GetTokenByIDCtx(arg0 context.Context, arg1 string) (*service.Scepter, error) {
+func (m *MockICacheRep) GetTokenByIDCtx(arg0 context.Context, arg1 string) (*service.Claims, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTokenByIDCtx", arg0, arg1)
-	ret0, _ := ret[0].(*service.Scepter)
+	ret0, _ := ret[0].(*service.Claims)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -65,7 +65,7 @@ func (mr *MockICacheRepMockRecorder) GetTokenByIDCtx(arg0, arg1 interface{}) *go
 }
 
 // SetTokenCtx mocks base method.
-func (m *MockICacheRep) SetTokenCtx(arg0 context.Context, arg1 string, arg2 int, arg3 *service.Scepter) error {
+func (m *MockICacheRep) SetTokenCtx(arg0 context.Context, arg1 string, arg2 int, arg3 *service.Claims) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetTokenCtx", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)

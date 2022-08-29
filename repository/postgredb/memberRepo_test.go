@@ -20,12 +20,12 @@ import (
 	"github.com/xorcare/pointer"
 )
 
-func TestMemberRepo_Insert(t *testing.T) {
+func TestMemberRep_Insert(t *testing.T) {
 	t.Parallel()
 	mockCtl := gomock.NewController(t)
 	defer mockCtl.Finish()
 	db, mock := newMemberMock()
-	repository := postgredb.NewMemberRepo(db)
+	repository := postgredb.NewMemberRep(db)
 	defer func() {
 		repository.Close()
 	}()
@@ -38,12 +38,12 @@ func TestMemberRepo_Insert(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestMemberRepo_Find(t *testing.T) {
+func TestMemberRep_Find(t *testing.T) {
 	t.Parallel()
 	mockCtl := gomock.NewController(t)
 	defer mockCtl.Finish()
 	db, mock := newMemberMock()
-	repository := postgredb.NewMemberRepo(db)
+	repository := postgredb.NewMemberRep(db)
 	defer func() {
 		repository.Close()
 	}()
@@ -59,12 +59,12 @@ func TestMemberRepo_Find(t *testing.T) {
 	require.Nil(t, deep.Equal(want, got))
 }
 
-func TestMemberRepo_FindAll(t *testing.T) {
+func TestMemberRep_FindAll(t *testing.T) {
 	t.Parallel()
 	mockCtl := gomock.NewController(t)
 	defer mockCtl.Finish()
 	db, mock := newMemberMock()
-	repository := postgredb.NewMemberRepo(db)
+	repository := postgredb.NewMemberRep(db)
 	defer func() {
 		repository.Close()
 	}()
@@ -83,12 +83,12 @@ func TestMemberRepo_FindAll(t *testing.T) {
 	require.Nil(t, deep.Equal(&want, got))
 }
 
-func TestMemberRepo_Updates(t *testing.T) {
+func TestMemberRep_Updates(t *testing.T) {
 	t.Parallel()
 	mockCtl := gomock.NewController(t)
 	defer mockCtl.Finish()
 	db, mock := newMemberMock()
-	repository := postgredb.NewMemberRepo(db)
+	repository := postgredb.NewMemberRep(db)
 	defer func() {
 		repository.Close()
 	}()
@@ -100,12 +100,12 @@ func TestMemberRepo_Updates(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestMemberRepo_Disable(t *testing.T) {
+func TestMemberRep_Disable(t *testing.T) {
 	t.Parallel()
 	mockCtl := gomock.NewController(t)
 	defer mockCtl.Finish()
 	db, mock := newMemberMock()
-	repository := postgredb.NewMemberRepo(db)
+	repository := postgredb.NewMemberRep(db)
 	defer func() {
 		repository.Close()
 	}()

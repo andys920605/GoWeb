@@ -39,13 +39,14 @@ func main() {
 }
 
 func di(cfg *configs.Config, db *gorm.DB, redis *redis.Client) router.IRouter {
-	//Repo
-	MemberRepo := rep_db.NewMemberRepo(db)
+	// Repo
+	//MailRep := rep_ext.NewMailRep(cfg)
+	MemberRep := rep_db.NewMemberRep(db)
 	CacheRep := rep_redis.NewCacheRepository(redis)
-	//Svc
-	MemberSvc := srv.NewMemberSvc(MemberRepo)
-	LoginSvc := srv.NewLoginSvc(cfg, MemberRepo, CacheRep)
-	//Router
+	// Svc
+	MemberSvc := srv.NewMemberSvc(MemberRep)
+	LoginSvc := srv.NewLoginSvc(cfg, MemberRep, CacheRep)
+	// Router
 	Router := router.NewRouter(MemberSvc, LoginSvc)
 
 	return Router

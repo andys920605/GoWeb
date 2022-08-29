@@ -43,6 +43,7 @@ func (router *Router) InitRouter() *gin.Engine {
 	g2.DELETE("/member/:account", router.disableMember)
 	// Login
 	g1.POST("/login", router.login)
+	g2.POST("/logout", router.logout)
 	return r
 }
 
@@ -134,6 +135,18 @@ func (router *Router) login(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, token)
+}
+func (router *Router) logout(c *gin.Context) {
+	accountToken := c.MustGet("account").(*models_srv.Claims)
+
+	errRsp := router.LoginSvc.Logout(&accountToken.Account)
+	if errRsp != nil {
+		c.JSON(http.StatusInternalServerError, errRsp)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
+	})
 }
 
 // endregion

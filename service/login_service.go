@@ -85,6 +85,17 @@ func (svc *LoginSrv) Login(param *models_svc.LoginReq) (*models_svc.Scepter, *er
 	}, nil
 }
 
+func (svc *LoginSrv) Logout(account *string) *errs.ErrorResponse {
+	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
+	defer cancel()
+	if err := svc.cacheRep.DeleteCtx(ctx, models_const.CacheTokenClientId+*account); err != nil {
+		return &errs.ErrorResponse{
+			Message: fmt.Sprintf("Logout fail,%s", err.Error()),
+		}
+	}
+	return nil
+}
+
 // region private function
 
 // get cache time

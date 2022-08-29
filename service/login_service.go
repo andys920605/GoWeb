@@ -6,7 +6,6 @@ import (
 	models_svc "GoWeb/models/service"
 	rep "GoWeb/repository/interface"
 	svc_interface "GoWeb/service/interface"
-	"GoWeb/utils"
 	"GoWeb/utils/crypto"
 	"GoWeb/utils/errs"
 	"context"
@@ -14,12 +13,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-delve/delve/pkg/config"
 	"github.com/golang-jwt/jwt"
 )
 
 type LoginSrv struct {
-	cfg       *config.Config
+	cfg       *configs.Config
 	memberRep rep.IMemberRep
 	cacheRep  rep.ICacheRep
 }
@@ -27,7 +25,7 @@ type LoginSrv struct {
 // jwt secret key
 var JwtSecret = []byte("secret")
 
-func NewLoginSrv(config *configs.Config, IMemberRep rep.IMemberRep, ICacheRep rep.ICacheRep) svc_interface.ILoginSrv {
+func NewLoginSvc(config *configs.Config, IMemberRep rep.IMemberRep, ICacheRep rep.ICacheRep) svc_interface.ILoginSrv {
 	return &LoginSrv{
 		cfg:       config,
 		memberRep: IMemberRep,
@@ -74,9 +72,19 @@ func (svc *LoginSrv) Login(param *models_svc.LoginReq) (*models_svc.Scepter, *er
 	}
 	// set cache
 	redisModel := *claims
-	svc.cacheRep.SetTokenCtx(ctx, models_const.CacheTokenClientId+param.Account, utils.ConvertHoursToSeconds(svc.cfg.Redis.AcctCacheTTL), &redisModel)
+	svc.cacheRep.SetTokenCtx(ctx, models_const.CacheTokenClientId+param.Account, svc.getCacheTime(), &redisModel)
 	return &models_svc.Scepter{
 		AccessToken: token,
 		TokenType:   "Bearer",
 	}, nil
 }
+
+// region private function
+
+// get cache time
+// return seconds
+func (svc *LoginSrv) getCacheTime() int {
+	return int((time.Duration(svc.cfg.Redis.CacheTTL) * time.Minute).Seconds())
+}
+
+// endregion

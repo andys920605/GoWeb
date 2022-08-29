@@ -16,19 +16,19 @@ import (
 )
 
 var (
-	redisBool = false
-	cfgTemp   *configs.Config
+	//redisBool = false
+	cfgTemp *configs.Config
 )
 
 func main() {
+	// init config
 	config := ProvideConfig()
-
 	// new postgres db
 	db, postgreErr := database.NewDb(config)
 	if postgreErr != nil {
 		return
 	}
-	//new redis db
+	// new redis db
 	redis, redisErr := database.NewRedis(config)
 	if redisErr != nil {
 		return
@@ -42,11 +42,11 @@ func di(cfg *configs.Config, db *gorm.DB, redis *redis.Client) router.IRouter {
 	//Repo
 	MemberRepo := rep_db.NewMemberRepo(db)
 	CacheRep := rep_redis.NewCacheRepository(redis)
-	//Srv
-	MemberSrv := srv.NewMemberSrv(MemberRepo)
-	LoginSrv := srv.NewLoginSrv(cfg, MemberRepo, CacheRep)
+	//Svc
+	MemberSvc := srv.NewMemberSvc(MemberRepo)
+	LoginSvc := srv.NewLoginSvc(cfg, MemberRepo, CacheRep)
 	//Router
-	Router := router.NewRouter(MemberSrv, LoginSrv)
+	Router := router.NewRouter(MemberSvc, LoginSvc)
 
 	return Router
 

@@ -55,7 +55,7 @@ type RedisConfig struct {
 	PoolTimeout    int
 	Password       string
 	DB             int
-	MemberCacheTTL time.Duration
+	CacheTTL       time.Duration
 }
 
 // Logger config

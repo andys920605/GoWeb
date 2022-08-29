@@ -26,14 +26,14 @@ func NewCacheRepository(redisClient *redis.Client) rep_interface.ICacheRep {
 }
 
 // get token cache
-func (cache *CacheRepository) GetTokenByIDCtx(ctx context.Context, key string) (*models_svc.Scepter, error) {
+func (cache *CacheRepository) GetTokenByIDCtx(ctx context.Context, key string) (*models_svc.Claims, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "CacheRepository.GetTokenByIDCtx")
 	defer span.Finish()
 	dataBytes, err := cache.client.Get(ctx, key).Bytes()
 	if err != nil {
 		return nil, errors.Wrap(err, "CacheRepository.GetTokenByIDCtx.redisClient.Get")
 	}
-	data := &models_svc.Scepter{}
+	data := &models_svc.Claims{}
 	if err = json.Unmarshal(dataBytes, data); err != nil {
 		return nil, errors.Wrap(err, "CacheRepository.GetTokenByIDCtx.json.Unmarshal")
 	}
@@ -41,7 +41,7 @@ func (cache *CacheRepository) GetTokenByIDCtx(ctx context.Context, key string) (
 }
 
 // set token cache
-func (cache *CacheRepository) SetTokenCtx(ctx context.Context, key string, seconds int, item *models_svc.Scepter) error {
+func (cache *CacheRepository) SetTokenCtx(ctx context.Context, key string, seconds int, item *models_svc.Claims) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "CacheRepository.SetTokenCtx")
 	defer span.Finish()
 	dataBytes, err := json.Marshal(item)

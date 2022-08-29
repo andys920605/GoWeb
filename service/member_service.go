@@ -20,7 +20,7 @@ type MemberSrv struct {
 	MemberRepo rep.IMemberRep
 }
 
-func NewMemberSrv(IMemberRepo rep.IMemberRep) svc_interface.IMemberSrv {
+func NewMemberSvc(IMemberRepo rep.IMemberRep) svc_interface.IMemberSrv {
 	return &MemberSrv{
 		MemberRepo: IMemberRepo,
 	}

@@ -66,7 +66,7 @@ func (svc *LoginSrv) Login(param *models_svc.LoginReq) (*models_svc.Scepter, *er
 		Role:    strconv.Itoa(member.Permission),
 		StandardClaims: jwt.StandardClaims{
 			Audience:  param.Account,
-			ExpiresAt: now.Add(30 * time.Minute).Unix(),
+			ExpiresAt: now.Add(120 * time.Minute).Unix(),
 			Id:        jwtId,
 			IssuedAt:  now.Unix(),
 			Issuer:    "ginJWT",

@@ -4,6 +4,8 @@ import (
 	"GoWeb/infras/configs"
 	models_ext "GoWeb/models/externals"
 	rep_interface "GoWeb/repository/interface"
+	"GoWeb/utils/errs"
+	"fmt"
 	"log"
 	"net/smtp"
 )
@@ -18,7 +20,7 @@ func NewMailExt(config *configs.Config) rep_interface.IMailExt {
 	}
 }
 
-func (rep *MailExt) Send(mail *models_ext.SendMail) bool {
+func (rep *MailExt) Send(mail *models_ext.SendMail) *errs.ErrorResponse {
 	from := rep.cfg.Email.Account
 	pass := rep.cfg.Email.Password
 	to := mail.TargetAddress
@@ -27,16 +29,16 @@ func (rep *MailExt) Send(mail *models_ext.SendMail) bool {
 		"To: " + to + "\n" +
 		"Subject:" + mail.Title + "\n\n" +
 		mail.Body
-
 	err := smtp.SendMail("smtp.gmail.com:587",
 		smtp.PlainAuth("", from, pass, "smtp.gmail.com"),
 		from, []string{to}, []byte(msg))
 
 	if err != nil {
 		log.Printf("smtp error: %s", err)
-		return false
+		return &errs.ErrorResponse{
+			Message: fmt.Sprintf("smtp error: %s", err.Error()),
+		}
 	}
 
-	log.Print("sent, visit mail")
-	return true
+	return nil
 }

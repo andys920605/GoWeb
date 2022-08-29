@@ -3,9 +3,11 @@ package service
 import (
 	"GoWeb/infras/configs"
 	models_const "GoWeb/models"
+	models_ext "GoWeb/models/externals"
 	models_svc "GoWeb/models/service"
 	rep "GoWeb/repository/interface"
 	svc_interface "GoWeb/service/interface"
+	"GoWeb/utils"
 	"GoWeb/utils/crypto"
 	"GoWeb/utils/errs"
 	"context"
@@ -21,19 +23,22 @@ type LoginSrv struct {
 	cfg       *configs.Config
 	memberRep rep.IMemberRep
 	cacheRep  rep.ICacheRep
+	mailExt   rep.IMailExt
 }
 
 // jwt secret key
 var JwtSecret = []byte("secret")
 
-func NewLoginSvc(config *configs.Config, IMemberRep rep.IMemberRep, ICacheRep rep.ICacheRep) svc_interface.ILoginSrv {
+func NewLoginSvc(config *configs.Config, IMemberRep rep.IMemberRep, ICacheRep rep.ICacheRep, IMailExt rep.IMailExt) svc_interface.ILoginSrv {
 	return &LoginSrv{
 		cfg:       config,
 		memberRep: IMemberRep,
 		cacheRep:  ICacheRep,
+		mailExt:   IMailExt,
 	}
 }
 
+// 使用者登入
 func (svc *LoginSrv) Login(param *models_svc.LoginReq) (*models_svc.Scepter, *errs.ErrorResponse) {
 	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
 	defer cancel()
@@ -86,6 +91,7 @@ func (svc *LoginSrv) Login(param *models_svc.LoginReq) (*models_svc.Scepter, *er
 	}, nil
 }
 
+// 使用者登出
 func (svc *LoginSrv) Logout(account *string) *errs.ErrorResponse {
 	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
 	defer cancel()
@@ -95,6 +101,25 @@ func (svc *LoginSrv) Logout(account *string) *errs.ErrorResponse {
 		}
 	}
 	return nil
+}
+
+// 寄送信箱認證信
+func (svc *LoginSrv) SendVerificationLetter(email *string) *errs.ErrorResponse {
+	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
+	defer cancel()
+	verifyCode := utils.Rand(8, utils.RAND_KIND_ALL)
+	body := fmt.Sprintf("驗證碼:%s，五分鐘後失效。", verifyCode)
+	mail := &models_ext.SendMail{
+		TargetAddress: *email,
+		Title:         "信箱驗證信",
+		Body:          body,
+	}
+	if err := svc.mailExt.Send(mail); err != nil {
+		return err
+	}
+	redisModel := *claims
+	svc.cacheRep.SetTokenCtx(ctx, models_const.CacheTokenClientId+param.Account, svc.getCacheTime(), &redisModel)
+
 }
 
 // 給middleware驗證帳號憑證是否過期

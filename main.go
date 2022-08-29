@@ -3,6 +3,7 @@ package main
 import (
 	"GoWeb/database"
 	"GoWeb/infras/configs"
+	rep_ext "GoWeb/repository/externals"
 	rep_db "GoWeb/repository/postgredb"
 	rep_redis "GoWeb/repository/redisdb"
 	"GoWeb/router"
@@ -40,12 +41,12 @@ func main() {
 
 func di(cfg *configs.Config, db *gorm.DB, redis *redis.Client) router.IRouter {
 	// Repo
-	//MailRep := rep_ext.NewMailRep(cfg)
+	MailRep := rep_ext.NewMailExt(cfg)
 	MemberRep := rep_db.NewMemberRep(db)
 	CacheRep := rep_redis.NewCacheRepository(redis)
 	// Svc
 	MemberSvc := srv.NewMemberSvc(MemberRep)
-	LoginSvc := srv.NewLoginSvc(cfg, MemberRep, CacheRep)
+	LoginSvc := srv.NewLoginSvc(cfg, MemberRep, CacheRep, MailRep)
 	// Router
 	Router := router.NewRouter(MemberSvc, LoginSvc)
 

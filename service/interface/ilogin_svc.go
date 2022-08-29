@@ -8,4 +8,5 @@ import (
 type ILoginSrv interface {
 	Login(*models_srv.LoginReq) (*models_srv.Scepter, *errs.ErrorResponse)
 	Logout(*string) *errs.ErrorResponse
+	CheckTokenExist(string) *string
 }

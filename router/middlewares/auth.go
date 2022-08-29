@@ -3,6 +3,7 @@ package middlewares
 import (
 	srv "GoWeb/models/service"
 	"GoWeb/service"
+	service_interface "GoWeb/service/interface"
 	"errors"
 	"net/http"
 	"strings"
@@ -27,7 +28,7 @@ func ParseToken(tokenString string) (*srv.Claims, error) {
 }
 
 // JWTAuthMiddleware
-func JWTAuthMiddleware() func(c *gin.Context) {
+func JWTAuthMiddleware(svc service_interface.ILoginSrv) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		// Get token from Header.Authorization field.
 		authHeader := c.Request.Header.Get("Authorization")
@@ -52,6 +53,14 @@ func JWTAuthMiddleware() func(c *gin.Context) {
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"message": "Invalid Token.",
+			})
+			c.Abort()
+			return
+		}
+		// check cache
+		if err := svc.CheckTokenExist(mc.Account); err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"message": err,
 			})
 			c.Abort()
 			return

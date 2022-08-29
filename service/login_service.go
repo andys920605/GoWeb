@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/xorcare/pointer"
 )
 
 type LoginSrv struct {
@@ -92,6 +93,15 @@ func (svc *LoginSrv) Logout(account *string) *errs.ErrorResponse {
 		return &errs.ErrorResponse{
 			Message: fmt.Sprintf("Logout fail,%s", err.Error()),
 		}
+	}
+	return nil
+}
+
+// 給middleware驗證帳號憑證是否過期
+func (svc *LoginSrv) CheckTokenExist(account string) *string {
+	// check token exist
+	if result, _ := svc.cacheRep.GetTokenByIDCtx(context.Background(), models_const.CacheTokenClientId+account); result == nil {
+		return pointer.String("Invalid Token.")
 	}
 	return nil
 }

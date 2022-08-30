@@ -12,4 +12,5 @@ const (
 
 	// for Cache
 	CacheTokenClientId = "mbr_accts:clientId:"
+	CacheEmailCode     = "mbr_accts:emailCode:"
 )

@@ -1,6 +1,7 @@
 package router
 
 import (
+	models_ext "GoWeb/models/externals"
 	models_rep "GoWeb/models/repository"
 	models_srv "GoWeb/models/service"
 	"GoWeb/router/middlewares"
@@ -44,6 +45,9 @@ func (router *Router) InitRouter() *gin.Engine {
 	// Login
 	g1.POST("/login", router.login)
 	g2.POST("/logout", router.logout)
+	// 註冊驗證信箱
+	g1.GET("/sign-up/sendEmail", router.SendVerificationLetter)
+	g1.POST("/sign-up/checkEmailCode", router.CheckEmailVerifyCode)
 	return r
 }
 
@@ -140,6 +144,42 @@ func (router *Router) logout(c *gin.Context) {
 	accountToken := c.MustGet("account").(*models_srv.Claims)
 
 	errRsp := router.LoginSvc.Logout(&accountToken.Account)
+	if errRsp != nil {
+		c.JSON(http.StatusInternalServerError, errRsp)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
+	})
+}
+
+// endregion
+
+// region 信箱驗證
+// 寄送驗證信
+func (router *Router) SendVerificationLetter(c *gin.Context) {
+	email := c.Query("email")
+	payload := &models_ext.VerifyEmail{
+		Email: email,
+	}
+	errRsp := router.LoginSvc.SendVerificationLetter(payload)
+	if errRsp != nil {
+		c.JSON(http.StatusInternalServerError, errRsp)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
+	})
+}
+
+// 檢查驗證信
+func (router *Router) CheckEmailVerifyCode(c *gin.Context) {
+	var payload models_ext.VerifyEmail
+	if err := c.ShouldBind(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	errRsp := router.LoginSvc.CheckEmailVerifyCode(&payload)
 	if errRsp != nil {
 		c.JSON(http.StatusInternalServerError, errRsp)
 		return

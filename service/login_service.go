@@ -12,6 +12,8 @@ import (
 	"GoWeb/utils/errs"
 	"context"
 	"fmt"
+	"log"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -84,7 +86,7 @@ func (svc *LoginSrv) Login(param *models_svc.LoginReq) (*models_svc.Scepter, *er
 		return nil, err
 	}
 	redisModel := *claims
-	svc.cacheRep.SetTokenCtx(ctx, models_const.CacheTokenClientId+param.Account, svc.getCacheTime(), &redisModel)
+	svc.cacheRep.SetTokenCtx(ctx, models_const.CacheTokenClientId+param.Account, svc.getLoginCacheTime(), &redisModel)
 	return &models_svc.Scepter{
 		AccessToken: *token,
 		TokenType:   "Bearer",
@@ -104,21 +106,61 @@ func (svc *LoginSrv) Logout(account *string) *errs.ErrorResponse {
 }
 
 // 寄送信箱認證信
-func (svc *LoginSrv) SendVerificationLetter(email *string) *errs.ErrorResponse {
+func (svc *LoginSrv) SendVerificationLetter(email *models_ext.VerifyEmail) *errs.ErrorResponse {
 	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
 	defer cancel()
 	verifyCode := utils.Rand(8, utils.RAND_KIND_ALL)
 	body := fmt.Sprintf("驗證碼:%s，五分鐘後失效。", verifyCode)
 	mail := &models_ext.SendMail{
-		TargetAddress: *email,
+		TargetAddress: email.Email,
 		Title:         "信箱驗證信",
 		Body:          body,
 	}
-	if err := svc.mailExt.Send(mail); err != nil {
-		return err
+	// if err := svc.mailExt.Send(mail); err != nil {
+	// 	return err
+	// }
+	log.Println(mail)
+	if err := svc.cacheRep.SetEmailCodeCtx(ctx, models_const.CacheEmailCode+email.Email, svc.getEmailCacheTime(), verifyCode); err != nil {
+		return &errs.ErrorResponse{
+			Message: err.Error(),
+		}
 	}
-	redisModel := *claims
-	svc.cacheRep.SetTokenCtx(ctx, models_const.CacheTokenClientId+param.Account, svc.getCacheTime(), &redisModel)
+	return nil
+}
+
+// 驗證信箱
+func (svc *LoginSrv) CheckEmailVerifyCode(email *models_ext.VerifyEmail) *errs.ErrorResponse {
+	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
+	defer cancel()
+	var emailCodeOK bool = false
+	res, err := svc.cacheRep.GetEmailCodeCtx(ctx, models_const.CacheEmailCode+email.Email)
+	if err != nil {
+		return &errs.ErrorResponse{
+			Message: err.Error(),
+		}
+	}
+	for _, item := range res {
+		if item == email.VerifyCode {
+			emailCodeOK = true
+		}
+	}
+	if !emailCodeOK {
+		return &errs.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Message:    "Verify Code Error",
+		}
+	}
+	// 暫時先用FindAll
+	memberRes, _ := svc.memberRep.FindAll(ctx)
+	for _, item := range *memberRes {
+		if *item.Email == email.Email {
+			return &errs.ErrorResponse{
+				StatusCode: http.StatusBadRequest,
+				Message:    "Email has been used",
+			}
+		}
+	}
+	return nil
 
 }
 
@@ -133,10 +175,15 @@ func (svc *LoginSrv) CheckTokenExist(account string) *string {
 
 // region private function
 
-// get cache time
+// get login cache time
 // return seconds
-func (svc *LoginSrv) getCacheTime() int {
+func (svc *LoginSrv) getLoginCacheTime() int {
 	return int((time.Duration(svc.cfg.Redis.CacheTTL) * time.Minute).Seconds())
+}
+
+// get email code cache time
+func (svc *LoginSrv) getEmailCacheTime() int {
+	return int((time.Duration(5) * time.Minute).Seconds())
 }
 
 // hash claims

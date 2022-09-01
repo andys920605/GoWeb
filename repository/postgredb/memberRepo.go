@@ -107,3 +107,27 @@ func (rep *MemberRepo) Disable(ctx context.Context, param *models_rep.UpdateMemb
 	_, err := db.ExecContext(ctx, query, param.Account)
 	return err
 }
+
+// check account exist
+func (rep *MemberRepo) CheckAccountExist(ctx context.Context, param string) bool {
+	rep.mutex.Lock()
+	defer rep.mutex.Unlock()
+	db := rep.db.DB()
+	query := `SELECT account FROM member WHERE account=$1`
+	if row := db.QueryRowContext(ctx, query, param); row != nil {
+		return false
+	}
+	return true
+}
+
+// check email exist
+func (rep *MemberRepo) CheckEmailExist(ctx context.Context, param string) bool {
+	rep.mutex.Lock()
+	defer rep.mutex.Unlock()
+	db := rep.db.DB()
+	query := `SELECT account FROM member WHERE email=$1`
+	if row := db.QueryRowContext(ctx, query, param); row != nil {
+		return false
+	}
+	return true
+}

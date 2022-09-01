@@ -31,9 +31,16 @@ func (svc *MemberSrv) CreateMember(param *models_rep.Member) *errs.ErrorResponse
 	defer cancel()
 	hash := crypto.NewSHA256([]byte(param.Password))
 	param.Password = fmt.Sprintf("%x", hash[:])
+	if ok := svc.MemberRepo.CheckAccountExist(ctx, param.Account); !ok {
+		return &errs.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Message:    "This account already exists",
+		}
+	}
 	if err := svc.MemberRepo.Insert(ctx, param); err != nil {
 		return &errs.ErrorResponse{
-			Message: err.Error(),
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
 		}
 	}
 	return nil
@@ -44,7 +51,8 @@ func (svc *MemberSrv) GetAllMember() (*[]models_rep.Member, *errs.ErrorResponse)
 	result, err := svc.MemberRepo.FindAll(ctx)
 	if err != nil {
 		return nil, &errs.ErrorResponse{
-			Message: err.Error(),
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
 		}
 	}
 	return result, nil
@@ -55,7 +63,8 @@ func (svc *MemberSrv) GetMember(account *string, phone *string) (*models_rep.Mem
 	result, err := svc.MemberRepo.Find(ctx, account, phone)
 	if err != nil {
 		return nil, &errs.ErrorResponse{
-			Message: err.Error(),
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
 		}
 	}
 	return result, nil

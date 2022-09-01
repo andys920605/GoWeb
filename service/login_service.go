@@ -110,6 +110,13 @@ func (svc *LoginSrv) Logout(account *string) *errs.ErrorResponse {
 func (svc *LoginSrv) SendVerificationLetter(email *models_ext.VerifyEmail) *errs.ErrorResponse {
 	ctx, cancel := context.WithTimeout(context.Background(), cancelTimeout*time.Second)
 	defer cancel()
+	ok := svc.memberRep.CheckEmailExist(ctx, email.Email)
+	if !ok {
+		return &errs.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Message:    "This email already exists",
+		}
+	}
 	verifyCode := utils.Rand(8, utils.RAND_KIND_ALL)
 	body := fmt.Sprintf("驗證碼:%s，五分鐘後失效。", verifyCode)
 	mail := &models_ext.SendMail{
@@ -151,18 +158,7 @@ func (svc *LoginSrv) CheckEmailVerifyCode(email *models_ext.VerifyEmail) *errs.E
 			Message:    "Verify Code Error",
 		}
 	}
-	// 暫時先用FindAll
-	memberRes, _ := svc.memberRep.FindAll(ctx)
-	for _, item := range *memberRes {
-		if *item.Email == email.Email {
-			return &errs.ErrorResponse{
-				StatusCode: http.StatusBadRequest,
-				Message:    "Email has been used",
-			}
-		}
-	}
 	return nil
-
 }
 
 // 給middleware驗證帳號憑證是否過期

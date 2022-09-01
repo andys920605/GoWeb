@@ -33,9 +33,7 @@ func (router *Router) InitRouter() *gin.Engine {
 	g2 := r.Group("/g2")                                   // 要token
 	g2.Use(middlewares.JWTAuthMiddleware(router.LoginSvc)) // use the Bearer Authentication middleware
 	g1.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
+		c.JSON(200, gin.H{"message": "pong"})
 	})
 	// 會員
 	g1.POST("/member", router.createMember)
@@ -60,12 +58,10 @@ func (router *Router) createMember(c *gin.Context) {
 	}
 	errRsp := router.MemberSvc.CreateMember(&payload)
 	if errRsp != nil {
-		c.JSON(http.StatusInternalServerError, errRsp)
+		c.JSON(errRsp.StatusCode, errRsp)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "ok",
-	})
+	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 }
 func (router *Router) getMember(c *gin.Context) {
 	result := c.MustGet("account").(*models_srv.Claims)
@@ -75,19 +71,18 @@ func (router *Router) getMember(c *gin.Context) {
 	if account != "" || phone != "" {
 		result, errRsp := router.MemberSvc.GetMember(&account, &phone)
 		if errRsp != nil {
-			c.JSON(http.StatusInternalServerError, errRsp)
+			c.JSON(errRsp.StatusCode, errRsp.Message)
 			return
 		}
 		c.JSON(http.StatusOK, result)
 	} else {
 		result, errRsp := router.MemberSvc.GetAllMember()
 		if errRsp != nil {
-			c.JSON(http.StatusInternalServerError, errRsp)
+			c.JSON(errRsp.StatusCode, errRsp.Message)
 			return
 		}
 		c.JSON(http.StatusOK, result)
 	}
-
 }
 func (router *Router) updateMember(c *gin.Context) {
 	account := c.Param("account")
@@ -102,9 +97,7 @@ func (router *Router) updateMember(c *gin.Context) {
 		c.JSON(errRsp.StatusCode, errRsp)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "ok",
-	})
+	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 }
 func (router *Router) disableMember(c *gin.Context) {
 	account := c.Param("account")
@@ -119,9 +112,7 @@ func (router *Router) disableMember(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errRsp)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "ok",
-	})
+	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 }
 
 // endregion
@@ -148,9 +139,7 @@ func (router *Router) logout(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errRsp)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "ok",
-	})
+	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 }
 
 // endregion
@@ -167,9 +156,7 @@ func (router *Router) SendVerificationLetter(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errRsp)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "ok",
-	})
+	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 }
 
 // 檢查驗證信
@@ -184,9 +171,7 @@ func (router *Router) CheckEmailVerifyCode(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errRsp)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "ok",
-	})
+	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 }
 
 // endregion

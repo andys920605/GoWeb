@@ -12,5 +12,7 @@ type IMemberRep interface {
 	FindAll(context.Context) (*[]models_rep.Member, error)
 	Updates(context.Context, *models_rep.UpdateMember) error
 	Disable(context.Context, *models_rep.UpdateMember) error
+	CheckAccountExist(context.Context, string) bool
+	CheckEmailExist(context.Context, string) bool
 	Close()
 }

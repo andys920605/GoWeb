@@ -1,7 +1,7 @@
 package database
 
 import (
-	"GoWeb/infras/configs"
+	model_com "GoWeb/models/commons"
 	"fmt"
 	"log"
 	"time"
@@ -17,17 +17,17 @@ const (
 	connMaxIdleTime = 20
 )
 
-func NewDb(cfg *configs.Config) (*gorm.DB, error) {
+func NewDb(Opt *model_com.Options) (*gorm.DB, error) {
 	dataSourceName := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s search_path=%s",
-		cfg.Postgres.Host,
-		cfg.Postgres.Port,
-		cfg.Postgres.User,
-		cfg.Postgres.Dbname,
-		cfg.Postgres.SSLMode,
-		cfg.Postgres.Password,
-		cfg.Postgres.Schema,
+		Opt.Config.Postgres.Host,
+		Opt.Config.Postgres.Port,
+		Opt.Config.Postgres.User,
+		Opt.Config.Postgres.Dbname,
+		Opt.Config.Postgres.SSLMode,
+		Opt.Config.Postgres.Password,
+		Opt.Config.Postgres.Schema,
 	)
-	db, err := gorm.Open(cfg.Postgres.PgDriver, dataSourceName)
+	db, err := gorm.Open(Opt.Config.Postgres.PgDriver, dataSourceName)
 	if err != nil {
 		log.Printf("Conn postgres err message:%e", err)
 		return nil, err

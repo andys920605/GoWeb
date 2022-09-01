@@ -1,0 +1,7 @@
+2022-09-01T11:49:17.062+0800	INFO	logger/zap_logger_test.go:31	info level test
+2022-09-01T11:49:17.095+0800	ERROR	logger/zap_logger_test.go:32	121212121212 error
+2022-09-01T11:49:17.095+0800	ERROR	logger/zap_logger_test.go:33	checker fatal error: {"Server":{"AppVersion":"","Port":"","PprofPort":"","ReadTimeout":0,"WriteTimeout":0,"CtxDefaultTimeout":0,"Retries":0,"RetryTime":0,"Debug":false,"IsIIS":false,"SSL":false},"Postgres":{"Host":"","Port":"","User":"","Password":"","Dbname":"","Schema":"","SSLMode":"","PgDriver":""},"Redis":{"RedisAddr":"","RedisPassword":"","RedisDB":"","RedisDefaultdb":"","MinIdleConns":0,"PoolSize":0,"PoolTimeout":0,"Password":"","DB":0,"CacheTTL":0},"Logger":{"Development":true,"DisableCaller":false,"Encoding":"console","Level":"info","EnableFile":true,"InfoFileName":"./logs/server.log","MaxBackups":5,"MaxAge":30,"MaxSize":1},"Email":{"Account":"","Password":""}}
+2022-09-01T11:49:17.096+0800	WARN	logger/zap_logger_test.go:34	warn level test
+2022-09-01T11:49:17.096+0800	INFO	logger/zap_logger_test.go:36	info level test: 111
+2022-09-01T11:49:17.096+0800	ERROR	logger/zap_logger_test.go:37	error level test: 111
+2022-09-01T11:49:17.096+0800	WARN	logger/zap_logger_test.go:38	warn level test: 111

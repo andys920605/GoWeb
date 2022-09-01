@@ -1,7 +1,7 @@
 package database
 
 import (
-	"GoWeb/infras/configs"
+	model_com "GoWeb/models/commons"
 	"context"
 	"log"
 	"time"
@@ -9,14 +9,14 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-func NewRedis(cfg *configs.Config) (*redis.Client, error) {
+func NewRedis(Opt *model_com.Options) (*redis.Client, error) {
 	client := redis.NewClient(&redis.Options{
-		Addr:         cfg.Redis.RedisAddr,
-		MinIdleConns: cfg.Redis.MinIdleConns,
-		PoolSize:     cfg.Redis.PoolSize,
-		PoolTimeout:  time.Duration(cfg.Redis.PoolTimeout) * time.Second,
-		Password:     cfg.Redis.Password, // no password set
-		DB:           cfg.Redis.DB,       // use default DB
+		Addr:         Opt.Config.Redis.RedisAddr,
+		MinIdleConns: Opt.Config.Redis.MinIdleConns,
+		PoolSize:     Opt.Config.Redis.PoolSize,
+		PoolTimeout:  time.Duration(Opt.Config.Redis.PoolTimeout) * time.Second,
+		Password:     Opt.Config.Redis.Password, // no password set
+		DB:           Opt.Config.Redis.DB,       // use default DB
 	})
 	if _, err := client.Ping(context.Background()).Result(); err != nil {
 		return nil, err

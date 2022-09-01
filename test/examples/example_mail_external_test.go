@@ -2,6 +2,7 @@ package examples_test
 
 import (
 	"GoWeb/infras/configs"
+	model_com "GoWeb/models/commons"
 	models_ext "GoWeb/models/externals"
 	ext "GoWeb/repository/externals"
 	rep_interface "GoWeb/repository/interface"
@@ -24,7 +25,10 @@ func init() {
 	if err != nil {
 		log.Fatalf("ParseConfig: %v", err)
 	}
-	mailExt = ext.NewMailExt(cfgTemp)
+	options := &model_com.Options{
+		Config: cfgTemp,
+	}
+	mailExt = ext.NewMailExt(options)
 }
 
 func ExampleMailExt_Send() {

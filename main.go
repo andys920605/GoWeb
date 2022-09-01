@@ -3,6 +3,8 @@ package main
 import (
 	"GoWeb/database"
 	"GoWeb/infras/configs"
+	"GoWeb/infras/logger"
+	model_com "GoWeb/models/commons"
 	rep_ext "GoWeb/repository/externals"
 	rep_db "GoWeb/repository/postgredb"
 	rep_redis "GoWeb/repository/redisdb"
@@ -22,31 +24,36 @@ var (
 )
 
 func main() {
-	// init config
+	// init config and logger
 	config := ProvideConfig()
+	apiLogger := logger.NewApiLogger(config)
+	options := &model_com.Options{
+		Config: config,
+		Logger: apiLogger,
+	}
 	// new postgres db
-	db, postgreErr := database.NewDb(config)
+	db, postgreErr := database.NewDb(options)
 	if postgreErr != nil {
 		return
 	}
 	// new redis db
-	redis, redisErr := database.NewRedis(config)
+	redis, redisErr := database.NewRedis(options)
 	if redisErr != nil {
 		return
 	}
-	app := di(config, db, redis)
+	app := di(options, db, redis)
 	server := app.InitRouter()
 	server.Run(":8070")
 }
 
-func di(cfg *configs.Config, db *gorm.DB, redis *redis.Client) router.IRouter {
+func di(opt *model_com.Options, db *gorm.DB, redis *redis.Client) router.IRouter {
 	// Repo
-	MailRep := rep_ext.NewMailExt(cfg)
+	MailRep := rep_ext.NewMailExt(opt)
 	MemberRep := rep_db.NewMemberRep(db)
 	CacheRep := rep_redis.NewCacheRepository(redis)
 	// Svc
 	MemberSvc := srv.NewMemberSvc(MemberRep)
-	LoginSvc := srv.NewLoginSvc(cfg, MemberRep, CacheRep, MailRep)
+	LoginSvc := srv.NewLoginSvc(opt, MemberRep, CacheRep, MailRep)
 	// Router
 	Router := router.NewRouter(MemberSvc, LoginSvc)
 

@@ -2,6 +2,7 @@ package externals
 
 import (
 	"GoWeb/infras/configs"
+	model_com "GoWeb/models/commons"
 	models_ext "GoWeb/models/externals"
 	rep_interface "GoWeb/repository/interface"
 	"GoWeb/utils/errs"
@@ -14,9 +15,9 @@ type MailExt struct {
 	cfg *configs.Config
 }
 
-func NewMailExt(config *configs.Config) rep_interface.IMailExt {
+func NewMailExt(opt *model_com.Options) rep_interface.IMailExt {
 	return &MailExt{
-		cfg: config,
+		cfg: opt.Config,
 	}
 }
 

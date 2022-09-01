@@ -3,6 +3,7 @@ package service
 import (
 	"GoWeb/infras/configs"
 	models_const "GoWeb/models"
+	model_com "GoWeb/models/commons"
 	models_ext "GoWeb/models/externals"
 	models_svc "GoWeb/models/service"
 	rep "GoWeb/repository/interface"
@@ -31,9 +32,9 @@ type LoginSrv struct {
 // jwt secret key
 var JwtSecret = []byte("secret")
 
-func NewLoginSvc(config *configs.Config, IMemberRep rep.IMemberRep, ICacheRep rep.ICacheRep, IMailExt rep.IMailExt) svc_interface.ILoginSrv {
+func NewLoginSvc(opt *model_com.Options, IMemberRep rep.IMemberRep, ICacheRep rep.ICacheRep, IMailExt rep.IMailExt) svc_interface.ILoginSrv {
 	return &LoginSrv{
-		cfg:       config,
+		cfg:       opt.Config,
 		memberRep: IMemberRep,
 		cacheRep:  ICacheRep,
 		mailExt:   IMailExt,

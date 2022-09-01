@@ -7,7 +7,7 @@
 
 #### 👨‍💻 Full list what has been used:
 * [gin](https://github.com/gin-gonic/gin) - Go web framework
-* [zap](https://go.uber.org/zap) - Go logger
+* [zap](https://github.com/uber-go/zap) - Go logger
 * [viper](https://github.com/spf13/viper) - Go load config
 * [gomock](https://github.com/golang/mock) - Go mocking framework
 * [GORM](https://github.com/jinzhu/gorm) - Go connection to postgreSQL

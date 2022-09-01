@@ -2,3 +2,5 @@
 configs/config.yaml
 .env
 .vs
+infras/logger/logs
+*.log
